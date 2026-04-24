@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+
+<header>
+    <div>🛒Shop</div>
+    <input placeholder="Tìm sản phẩm...">
+    <div onclick="logout()">Logout</div>
+</header>
+
+<div class="slider">
+    <img id="banner" src="your-image.jpg">
+
+    <button class="nav prev">❮</button>
+    <button class="nav next">❯</button>
+</div>
+<!-- CATEGORY -->
+<h2>DANH MỤC</h2>
+<div class="category-scroll">
+    <div class="cat-item">Áo</div>
+    <div class="cat-item">Điện thoại</div>b
+    <div class="cat-item">TV</div>
+    <div class="cat-item">Laptop</div>
+    <div class="cat-item">Máy ảnh</div>
+    <div class="cat-item">Đồng hồ</div>
+    <div class="cat-item">Giày</div>
+    <div class="cat-item">Thiết bị gia dụng</div>
+    <div class="cat-item">Thể thao</div>
+    <div class="cat-item">Sắc đẹp</div>
+    <div class="cat-item">Mẹ và bé</div>
+    <div class="cat-item">Sức khoẻ</div>
+    <div class="cat-item">Ô tô và Xe máy</div>
+  
+</div>
+
+<!-- PRODUCTS -->
+<div class="container">
+    <h2>Sản phẩm</h2>
+
+    <div class="product-grid">
+
+        <div class="card">
+            <div class="image"></div>
+            <div class="name">Product</div>
+            <div class="price">$100</div>
+        </div>
+
+        <div class="card">
+            <div class="image"></div>
+            <div class="name">Product</div>
+            <div class="price">$200</div>
+        </div>
+
+        <div class="card">
+            <div class="image"></div>
+            <div class="name">Product</div>
+            <div class="price">$150</div>
+        </div>
+
+        <div class="card">
+            <div class="image"></div>
+            <div class="name">Product</div>
+            <div class="price">$200</div>
+        </div>
+
+        <div class="card">
+            <div class="image"></div>
+            <div class="name">Product</div>
+            <div class="price">$200</div>
+        </div>
+
+        <div class="card">
+            <div class="image"></div>
+            <div class="name">Product</div>
+            <div class="price">$200</div>
+        </div>
+
+        <div class="card">
+            <div class="image"></div>
+            <div class="name">Product</div>
+            <div class="price">$200</div>
+        </div>
+
+        <div class="card">
+            <div class="image"></div>
+            <div class="name">Product</div>
+            <div class="price">$200</div>
+        </div>
+
+        <div class="card">
+            <div class="image"></div>
+            <div class="name">Product</div>
+            <div class="price">$200</div>
+        </div>
+
+        <div class="card">
+            <div class="image"></div>
+            <div class="name">Product</div>
+            <div class="price">$200</div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
