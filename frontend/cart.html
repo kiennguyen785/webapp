@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Giỏ hàng</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header>
+    <div onclick="window.location.href='/'">🛒Shop</div>
+    <h2>Giỏ hàng của bạn</h2>
+</header>
+
+<div class="container">
+    <div id="cart-list" class="cart-list"></div>
+
+    <div class="cart-summary">
+        <h3>Tổng tiền: <span id="total-price">0đ</span></h3>
+        <button onclick="checkout()">Đặt hàng</button>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='cart.js') }}"></script>
+
+</body>
+</html>

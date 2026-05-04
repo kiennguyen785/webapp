@@ -1,111 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
+    <meta charset="UTF-8">
     <title>Home</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 <body>
 
 <header>
-    <div>🛒Shop</div>
+    <div>Shopee</div>
     <input placeholder="Tìm sản phẩm...">
+
+   <div class="cart-box" onclick="goToCart()">
+    🛍️ Giỏ hàng (<span id="cart-count">0</span>)
+   </div>
+
     <div onclick="logout()">Logout</div>
 </header>
 
 <div class="slider">
-    <img id="banner" src="your-image.jpg">
 
-    <button class="nav prev">❮</button>
-    <button class="nav next">❯</button>
+    <img id="banner" src="https://down-vn.img.susercontent.com/file/sg-11134258-8261n-mmfw9oka07ig62@resize_w1594_nl.webp">
+
+    <button class="nav prev" onclick="prevSlide()">❮</button>
+    <button class="nav next" onclick="nextSlide()">❯</button>
+
 </div>
+
 <!-- CATEGORY -->
-<h2>DANH MỤC</h2>
+    <h2 class="section-title" >DANH MỤC</h2>
+
 <div class="category-scroll">
-    <div class="cat-item">Áo</div>
-    <div class="cat-item">Điện thoại</div>b
-    <div class="cat-item">TV</div>
-    <div class="cat-item">Laptop</div>
-    <div class="cat-item">Máy ảnh</div>
-    <div class="cat-item">Đồng hồ</div>
-    <div class="cat-item">Giày</div>
-    <div class="cat-item">Thiết bị gia dụng</div>
-    <div class="cat-item">Thể thao</div>
-    <div class="cat-item">Sắc đẹp</div>
-    <div class="cat-item">Mẹ và bé</div>
-    <div class="cat-item">Sức khoẻ</div>
-    <div class="cat-item">Ô tô và Xe máy</div>
-  
+    <div class="cat-item" onclick="loadProducts()">Gợi ý</div>
+    <div class="cat-item" onclick="loadCategory('Điện thoại')">Điện thoại</div>
+    <div class="cat-item" onclick="loadCategory('Phụ kiện điện thoại')">Phụ kiện</div>
+    <div class="cat-item" onclick="loadCategory('Đồng hồ')">Đồng hồ</div>
+    <div class="cat-item" onclick="loadCategory('Thời trang')">Thời trang</div>
+    <div class="cat-item" onclick="loadCategory('Thực phẩm')">Thực phẩm</div>
 </div>
 
 <!-- PRODUCTS -->
 <div class="container">
-    <h2>Sản phẩm</h2>
+    <h2>SẢN PHẨM</h2>
+    <div class="product-grid" id="products"></div>
+</div>
 
-    <div class="product-grid">
-
-        <div class="card">
-            <div class="image"></div>
-            <div class="name">Product</div>
-            <div class="price">$100</div>
-        </div>
-
-        <div class="card">
-            <div class="image"></div>
-            <div class="name">Product</div>
-            <div class="price">$200</div>
-        </div>
-
-        <div class="card">
-            <div class="image"></div>
-            <div class="name">Product</div>
-            <div class="price">$150</div>
-        </div>
-
-        <div class="card">
-            <div class="image"></div>
-            <div class="name">Product</div>
-            <div class="price">$200</div>
-        </div>
-
-        <div class="card">
-            <div class="image"></div>
-            <div class="name">Product</div>
-            <div class="price">$200</div>
-        </div>
-
-        <div class="card">
-            <div class="image"></div>
-            <div class="name">Product</div>
-            <div class="price">$200</div>
-        </div>
-
-        <div class="card">
-            <div class="image"></div>
-            <div class="name">Product</div>
-            <div class="price">$200</div>
-        </div>
-
-        <div class="card">
-            <div class="image"></div>
-            <div class="name">Product</div>
-            <div class="price">$200</div>
-        </div>
-
-        <div class="card">
-            <div class="image"></div>
-            <div class="name">Product</div>
-            <div class="price">$200</div>
-        </div>
-
-        <div class="card">
-            <div class="image"></div>
-            <div class="name">Product</div>
-            <div class="price">$200</div>
-        </div>
-
+<!-- PRODUCT DETAIL -->
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="productDetail"></div>
     </div>
 </div>
+<div id="checkoutModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeCheckout()">&times;</span>
+
+        <h2>Thông tin đặt hàng</h2>
+
+        <input id="customerName" placeholder="Tên người nhận">
+        <input id="customerPhone" placeholder="Số điện thoại">
+        <input id="customerAddress" placeholder="Địa chỉ nhận hàng">
+
+        <button onclick="submitOrder()">Xác nhận đặt hàng</button>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
 </html>

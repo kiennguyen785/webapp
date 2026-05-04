@@ -13,14 +13,6 @@ CREATE TABLE products (
     image_url NVARCHAR(500) NULL
 );
 GO
-INSERT INTO products (item_id, product_name, main_category, price, image_url)
-VALUES
-(1, N'iPhone 13 128GB', N'Điện thoại', 13990000, N'https://picsum.photos/300?1'),
-(2, N'Samsung Galaxy A15', N'Điện thoại', 4990000, N'https://picsum.photos/300?2'),
-(3, N'Tai nghe Bluetooth JBL', N'Phụ kiện điện thoại', 790000, N'https://picsum.photos/300?3'),
-(4, N'Sạc nhanh Anker 20W', N'Phụ kiện điện thoại', 350000, N'https://picsum.photos/300?4');
-SELECT * FROM products;
-
 CREATE TABLE users (
     user_id INT IDENTITY(1,1) PRIMARY KEY,
     username NVARCHAR(100) NOT NULL UNIQUE,
@@ -42,3 +34,17 @@ CREATE TABLE cart (
     quantity INT DEFAULT 1,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
+/*UNIQUE cho products*/
+ALTER TABLE products
+ADD CONSTRAINT UQ_products_item_id UNIQUE (item_id);
+GO
+/*Khóa ngoại từ events sang products*/
+ALTER TABLE events
+ADD CONSTRAINT FK_events_products
+FOREIGN KEY (item_id) REFERENCES products(item_id);
+GO
+/*Khóa ngoại từ cart sang products*/
+ALTER TABLE cart
+ADD CONSTRAINT FK_cart_products
+FOREIGN KEY (item_id) REFERENCES products(item_id);
+GO

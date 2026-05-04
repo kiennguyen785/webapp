@@ -6,11 +6,16 @@ body {
 
 /* HEADER */
 header {
-    background: #ee4d2d;
+    background: #ff5722;
     color: white;
-    padding: 15px;
+    padding: 15px 15px;
     display: flex;
     justify-content: space-between;
+
+}
+.section-title{
+    text-align: left;
+    margin-left: 20px; /* đẩy vào trong cho đẹp */
 }
 
 header input {
@@ -20,6 +25,7 @@ header input {
 
 .slider {
     position: relative;
+    padding-top: 30px;
     width: 100%;
     max-width: 900px;
     margin: auto;
@@ -96,6 +102,8 @@ header input {
 .category-scroll {
     display: flex;
     overflow-x: auto;   /* scroll ngang */
+    justify-content: center;   /* 👉 CĂN GIỮA */
+    align-items: center;
     gap: 20px;
     padding: 20px;
     background: white;
@@ -121,7 +129,17 @@ header input {
     grid-template-columns: repeat(5, 1fr);
     gap: 15px;
 }
+.cart-box {
+    cursor: pointer;
+    background: #ff5722;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
 
+.cart-box:hover {
+    background: #ff7043;
+}
 .card {
     background: white;
     padding: 10px;
@@ -145,4 +163,157 @@ header input {
 .price {
     color: #ee4d2d;
     font-weight: bold;
+}
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    padding: 20px;
+    background: #f5f5f5;
+}
+
+.card {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.16);
+    border-color: #ee4d2d;
+}
+
+.thumb-wrap {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    background: #f8f8f8;
+}
+
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.discount {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #fff0ec;
+    color: #ee4d2d;
+    padding: 4px 7px;
+    font-size: 16px;
+    border-bottom-left-radius: 6px;
+}
+
+.sale-badge {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    background: #ff4d2d;
+    color: white;
+    font-weight: bold;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 22px;
+}
+
+.video-icon {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+}
+
+.product-info {
+    padding: 10px 12px 12px;
+}
+
+.product-name {
+    font-size: 17px;
+    line-height: 1.35;
+    height: 48px;
+    overflow: hidden;
+    color: #222;
+}
+
+.fav {
+    background: #ee4d2d;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 14px;
+    margin-right: 4px;
+}
+
+.tag {
+    display: inline-block;
+    margin-top: 8px;
+    border: 1px solid #ee4d2d;
+    color: #ee4d2d;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.bottom-row {
+    margin-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price {
+    color: #ee4d2d;
+    font-size: 22px;
+}
+
+.sold {
+    font-size: 15px;
+    color: #333;
+}
+.card-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.card-actions button {
+    flex: 1;
+    border: none;
+    padding: 7px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.card-actions button:nth-child(1) {
+    background: #eeeeee;
+}
+
+.card-actions button:nth-child(2) {
+    background: #ffb300;
+    color: white;
+}
+
+.card-actions button:nth-child(3) {
+    background: #ee4d2d;
+    color: white;
+}
+
+.card-actions button:hover {
+    opacity: 0.85;
 }
