@@ -87,6 +87,7 @@ CREATE TABLE order_items (
 UPDATE products_real
 SET quantity = 123;
 
+
 IF OBJECT_ID('users', 'U') IS NULL
 BEGIN
     CREATE TABLE users (
@@ -99,3 +100,27 @@ BEGIN
         is_profile_completed BIT DEFAULT 0
     );
 END
+
+SELECT*
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'products_real';
+
+SELECT TOP 5 * FROM users;
+ALTER TABLE users
+ADD role NVARCHAR(20) DEFAULT 'user';
+UPDATE users
+SET role = 'user'
+WHERE role IS NULL;
+SELECT * FROM users;
+INSERT INTO users (
+    username,
+    password,
+    role,
+    is_profile_completed
+)
+VALUES (
+    'admin',
+    '123456',
+    'admin',
+    1
+);

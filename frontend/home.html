@@ -10,25 +10,66 @@
 <body>
 
 <!-- HEADER -->
-<header class="top-header">
-    <div class="logo">Shopee</div>
+<header class="header">
 
-    <div class="search-box">
-        <input id="searchInput" placeholder="Tìm sản phẩm...">
-        <button onclick="searchProducts()">Tìm</button>
+    <div class="logo"
+         onclick="window.location.href='/'">
+
+        Mini Shop
+
     </div>
 
-    <div class="header-right">
-        <div class="cart-box" onclick="goToCart()">
-            🛍️ Giỏ hàng (<span id="cart-count">0</span>)
-        </div>
 
-        <div class="auth-buttons" id="authArea">
-            <a href="/login">Đăng nhập</a>
-            <a href="/register">Đăng ký</a>
-        </div>
-        
+    <div class="search">
+
+        <input
+            id="searchInput"
+            type="text"
+            placeholder="Tìm sản phẩm..."
+        >
+
+        <button onclick="searchProducts()">
+
+            Tìm
+
+        </button>
+
     </div>
+
+
+    <nav>
+
+        <a href="/"
+           onclick="loadProducts()">
+
+            Trang chủ
+
+        </a>
+
+        <a href="/products">
+
+            Sản phẩm
+
+        </a>
+
+        <a href="#"
+           onclick="loadRecommend()">
+
+            Gợi ý
+
+        </a>
+
+        <a href="/cart">
+
+            Giỏ hàng
+
+        </a>
+
+
+        <div id="authArea"></div>
+
+    </nav>
+
 </header>
 
 <!-- SLIDER -->
@@ -104,7 +145,6 @@
     <span id="toast-msg">Thành công</span>
     <span class="toast-close" onclick="closeToast()">×</span>
 </div>
-
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
