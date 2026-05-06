@@ -124,3 +124,15 @@ VALUES (
     'admin',
     1
 );
+ALTER TABLE cart
+DROP CONSTRAINT FK_cart_products;
+
+ALTER TABLE cart
+ADD CONSTRAINT FK_cart_products_real
+FOREIGN KEY (item_id)
+REFERENCES products_real(item_id);
+
+ALTER TABLE events
+DROP CONSTRAINT FK_events_products;
+
+SELECT TOP 10 * FROM cart ORDER BY cart_id DESC;

@@ -324,70 +324,94 @@ def save_event():
 
 @app.route("/cart/add", methods=["POST"])
 def add_to_cart():
-    data = request.get_json()
 
-    user_id = data.get("user_id")
-    item_id = data.get("item_id")
-    quantity = data.get("quantity", 1)
+    try:
 
-    if not user_id or not item_id:
-        return jsonify({
-            "status": "error",
-            "message": "Thiếu user_id hoặc item_id"
-        })
+        data = request.get_json()
 
-    conn = get_connection()
-    cursor = conn.cursor()
+        user_id = data.get("user_id")
+        item_id = data.get("item_id")
+        quantity = data.get("quantity", 1)
 
-    cursor.execute("""
-        SELECT quantity
-        FROM products_real
-        WHERE item_id = ?
-    """, item_id)
+        if not user_id or not item_id:
 
-    product = cursor.fetchone()
+            return jsonify({
+                "status": "error",
+                "message": "Thiếu user_id hoặc item_id"
+            })
 
-    if product is None:
-        conn.close()
-        return jsonify({
-            "status": "error",
-            "message": "Không tìm thấy sản phẩm"
-        })
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    if product[0] <= 0:
-        conn.close()
-        return jsonify({
-            "status": "error",
-            "message": "Sản phẩm đã hết hàng"
-        })
-
-    cursor.execute("""
-        SELECT cart_id, quantity
-        FROM cart
-        WHERE user_id = ? AND item_id = ?
-    """, user_id, item_id)
-
-    row = cursor.fetchone()
-
-    if row:
         cursor.execute("""
-            UPDATE cart
-            SET quantity = quantity + ?
+            SELECT quantity
+            FROM products_real
+            WHERE item_id = ?
+        """, item_id)
+
+        product = cursor.fetchone()
+
+        if product is None:
+
+            conn.close()
+
+            return jsonify({
+                "status": "error",
+                "message": "Không tìm thấy sản phẩm"
+            })
+
+        if product[0] <= 0:
+
+            conn.close()
+
+            return jsonify({
+                "status": "error",
+                "message": "Sản phẩm đã hết hàng"
+            })
+
+        cursor.execute("""
+            SELECT cart_id, quantity
+            FROM cart
             WHERE user_id = ? AND item_id = ?
-        """, quantity, user_id, item_id)
-    else:
-        cursor.execute("""
-            INSERT INTO cart (user_id, item_id, quantity)
-            VALUES (?, ?, ?)
-        """, user_id, item_id, quantity)
+        """, user_id, item_id)
 
-    conn.commit()
-    conn.close()
+        row = cursor.fetchone()
 
-    return jsonify({
-        "status": "added",
-        "message": "Đã thêm vào giỏ hàng"
-    })
+        if row:
+
+            cursor.execute("""
+                UPDATE cart
+                SET quantity = quantity + ?
+                WHERE user_id = ? AND item_id = ?
+            """, quantity, user_id, item_id)
+
+        else:
+
+            cursor.execute("""
+                INSERT INTO cart (
+                    user_id,
+                    item_id,
+                    quantity
+                )
+                VALUES (?, ?, ?)
+            """, user_id, item_id, quantity)
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            "status": "added",
+            "message": "Đã thêm vào giỏ hàng"
+        })
+
+    except Exception as e:
+
+        print("LỖI CART:", e)
+
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        })
 
 @app.route("/api/cart/<int:user_id>")
 def get_cart(user_id):
@@ -427,6 +451,203 @@ def get_cart(user_id):
         })
 
     return jsonify(data)
+@app.route("/cart/update", methods=["POST"])
+def update_cart_quantity():
+    data = request.get_json()
 
+    cart_id = data.get("cart_id")
+    action = data.get("action")
+
+    if not cart_id or action not in ["increase", "decrease"]:
+        return jsonify({"status": "error", "message": "Dữ liệu không hợp lệ"})
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT quantity
+        FROM cart
+        WHERE cart_id = ?
+    """, cart_id)
+
+    row = cursor.fetchone()
+
+    if row is None:
+        conn.close()
+        return jsonify({"status": "error", "message": "Không tìm thấy sản phẩm trong giỏ"})
+
+    current_qty = row[0]
+
+    if action == "increase":
+        cursor.execute("""
+            UPDATE cart
+            SET quantity = quantity + 1
+            WHERE cart_id = ?
+        """, cart_id)
+
+    elif action == "decrease":
+        if current_qty <= 1:
+            cursor.execute("""
+                DELETE FROM cart
+                WHERE cart_id = ?
+            """, cart_id)
+        else:
+            cursor.execute("""
+                UPDATE cart
+                SET quantity = quantity - 1
+                WHERE cart_id = ?
+            """, cart_id)
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"status": "ok"})
+@app.route("/cart/remove", methods=["POST"])
+def remove_cart_item():
+    data = request.get_json()
+
+    cart_id = data.get("cart_id")
+
+    if not cart_id:
+        return jsonify({"status": "error", "message": "Thiếu cart_id"})
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        DELETE FROM cart
+        WHERE cart_id = ?
+    """, cart_id)
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"status": "ok"})
+@app.route("/cart/checkout", methods=["POST"])
+def checkout_cart():
+
+    data = request.get_json()
+
+    user_id = data.get("user_id")
+
+    if not user_id:
+
+        return jsonify({
+            "status": "error",
+            "message": "Thiếu user_id"
+        })
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Lấy sản phẩm trong cart
+    cursor.execute("""
+
+        SELECT
+            c.item_id,
+            c.quantity,
+            p.price
+
+        FROM cart c
+
+        JOIN products_real p
+            ON c.item_id = p.item_id
+
+        WHERE c.user_id = ?
+
+    """, user_id)
+
+    cart_items = cursor.fetchall()
+
+    if len(cart_items) == 0:
+
+        conn.close()
+
+        return jsonify({
+            "status": "error",
+            "message": "Giỏ hàng trống"
+        })
+
+    total_price = 0
+
+    for item in cart_items:
+
+        total_price += item[1] * item[2]
+
+    # tạo order
+    cursor.execute("""
+
+        INSERT INTO orders (
+            user_id,
+            total_price
+        )
+
+        OUTPUT INSERTED.order_id
+
+        VALUES (?, ?)
+
+    """, user_id, total_price)
+
+    order_id = cursor.fetchone()[0]
+
+    # thêm order_items
+    for item in cart_items:
+
+        item_id = item[0]
+        quantity = item[1]
+        price = item[2]
+
+        cursor.execute("""
+
+            INSERT INTO order_items (
+                order_id,
+                item_id,
+                quantity,
+                price
+            )
+
+            VALUES (?, ?, ?, ?)
+
+        """, order_id, item_id, quantity, price)
+
+        # trừ tồn kho
+        cursor.execute("""
+
+            UPDATE products_real
+
+            SET quantity = quantity - ?
+
+            WHERE item_id = ?
+
+        """, quantity, item_id)
+
+        # lưu purchase event
+        cursor.execute("""
+
+            INSERT INTO events (
+                user_id,
+                item_id,
+                event_type
+            )
+
+            VALUES (?, ?, ?)
+
+        """, user_id, item_id, "purchase")
+
+    # xóa cart
+    cursor.execute("""
+
+        DELETE FROM cart
+        WHERE user_id = ?
+
+    """, user_id)
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "status": "ok",
+        "message": "Đặt hàng thành công"
+    })
 if __name__ == "__main__":
     app.run(debug=True)
