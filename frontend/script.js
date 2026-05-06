@@ -168,7 +168,7 @@ function buyNow(id) {
     alert("Đặt hàng thành công");
 }
 
-window.onload = loadProducts;
+window.addEventListener("load", loadProducts);
 function goToCart() {
     window.location.href = "/cart";
 }
@@ -430,56 +430,10 @@ function saveProfile() {
         }
     });
 }
-function saveProfile() {
+window.addEventListener("load", updateAuthArea);
+function logout() {
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("username");
 
-    const userId = localStorage.getItem("user_id");
-
-    const full_name =
-        document.getElementById("fullName").value.trim();
-
-    const phone =
-        document.getElementById("phone").value.trim();
-
-    const address =
-        document.getElementById("address").value.trim();
-
-    if (!full_name || !phone || !address) {
-        alert("Vui lòng nhập đầy đủ thông tin");
-        return;
-    }
-
-    const phoneRegex = /^0\d{9}$/;
-
-    if (!phoneRegex.test(phone)) {
-        alert("Số điện thoại không hợp lệ");
-        return;
-    }
-
-    fetch("/api/profile/update", {
-
-        method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-            user_id: Number(userId),
-            full_name,
-            phone,
-            address
-        })
-    })
-
-    .then(res => res.json())
-
-    .then(data => {
-
-        if (data.status === "ok") {
-
-            alert("Cập nhật thành công");
-
-            window.location.href = "/";
-        }
-    });
+    window.location.href = "/";
 }

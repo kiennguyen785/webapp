@@ -215,6 +215,7 @@ def add_to_cart():
 @app.route("/profile")
 def profile_page():
     return render_template("profile.html")
+
 @app.route("/api/profile/<int:user_id>")
 def get_profile(user_id):
 
