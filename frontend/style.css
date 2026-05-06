@@ -360,26 +360,38 @@ header input {
 /* LOGIN / REGISTER */
 .auth-buttons {
     display: flex;
-    gap: 8px;
+    gap: 10px;
+    position: relative;
+    z-index: 9999;
 }
 
 .auth-buttons a {
-    display: inline-flex;
+    position: relative;
+    z-index: 9999;
+
+    width: 95px;
+    height: 34px;
+
+    display: flex;
     align-items: center;
     justify-content: center;
-    width: 95px;           
-    height: 34px;
+
     font-size: 13px;
-    font-weight: 500;
-    color: white;         
-    text-decoration: none;
+    font-weight: 600;
+
+    color: white !important;
+    text-decoration: none !important;
+
     background: rgba(255,255,255,0.25);
     border-radius: 6px;
+
     transition: 0.2s;
 }
 
 .auth-buttons a:hover {
-    background: rgba(255,255,255,0.4);
+    background: white !important;
+    color: #ee4d2d !important;
+    transform: translateY(-2px);
 }
 
 .cat-item {

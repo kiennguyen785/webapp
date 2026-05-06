@@ -86,3 +86,16 @@ CREATE TABLE order_items (
 );
 UPDATE products_real
 SET quantity = 123;
+
+IF OBJECT_ID('users', 'U') IS NULL
+BEGIN
+    CREATE TABLE users (
+        user_id INT IDENTITY(1,1) PRIMARY KEY,
+        username NVARCHAR(100) NOT NULL UNIQUE,
+        password NVARCHAR(100) NOT NULL,
+        full_name NVARCHAR(255) NULL,
+        phone NVARCHAR(20) NULL,
+        address NVARCHAR(500) NULL,
+        is_profile_completed BIT DEFAULT 0
+    );
+END
