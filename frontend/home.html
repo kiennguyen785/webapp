@@ -6,43 +6,59 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
 
-<header>
-    <div>Shopee</div>
-    <input placeholder="Tìm sản phẩm...">
+<!-- HEADER -->
+<header class="top-header">
+    <div class="logo">Shopee</div>
 
-   <div class="cart-box" onclick="goToCart()">
-    🛍️ Giỏ hàng (<span id="cart-count">0</span>)
-   </div>
+    <div class="search-box">
+        <input id="searchInput" placeholder="Tìm sản phẩm...">
+        <button onclick="searchProducts()">Tìm</button>
+    </div>
 
-    <div onclick="logout()">Logout</div>
+    <div class="header-right">
+        <div class="cart-box" onclick="goToCart()">
+            🛍️ Giỏ hàng (<span id="cart-count">0</span>)
+        </div>
+
+        <div class="auth-buttons" id="authArea">
+            <a href="/login">Đăng nhập</a>
+            <a href="/register">Đăng ký</a>
+        </div>
+        
+    </div>
 </header>
 
-<div class="slider">
+<!-- SLIDER -->
+<div class="container">
+    <div class="slider">
+        <img id="banner"
+             src="https://down-vn.img.susercontent.com/file/sg-11134258-8261n-mmfw9oka07ig62@resize_w1594_nl.webp">
 
-    <img id="banner" src="https://down-vn.img.susercontent.com/file/sg-11134258-8261n-mmfw9oka07ig62@resize_w1594_nl.webp">
-
-    <button class="nav prev" onclick="prevSlide()">❮</button>
-    <button class="nav next" onclick="nextSlide()">❯</button>
-
+        <button class="nav prev" onclick="prevSlide()">❮</button>
+        <button class="nav next" onclick="nextSlide()">❯</button>
+    </div>
 </div>
 
 <!-- CATEGORY -->
-    <h2 class="section-title" >DANH MỤC</h2>
+<div class="container">
+    <h2 class="section-title">DANH MỤC</h2>
 
-<div class="category-scroll">
-    <div class="cat-item" onclick="loadProducts()">Gợi ý</div>
-    <div class="cat-item" onclick="loadCategory('Điện thoại')">Điện thoại</div>
-    <div class="cat-item" onclick="loadCategory('Phụ kiện điện thoại')">Phụ kiện</div>
-    <div class="cat-item" onclick="loadCategory('Đồng hồ')">Đồng hồ</div>
-    <div class="cat-item" onclick="loadCategory('Thời trang')">Thời trang</div>
-    <div class="cat-item" onclick="loadCategory('Thực phẩm')">Thực phẩm</div>
+    <div class="category-scroll">
+        <div class="cat-item active" onclick="selectCategory(this, null)">Tất cả</div>
+        <div class="cat-item" onclick="selectCategory(this, 'Điện thoại')">Điện thoại</div>
+        <div class="cat-item" onclick="selectCategory(this, 'Phụ kiện điện thoại')">Phụ kiện</div>
+        <div class="cat-item" onclick="selectCategory(this, 'Đồng hồ')">Đồng hồ</div>
+        <div class="cat-item" onclick="selectCategory(this, 'Thời trang')">Thời trang</div>
+        <div class="cat-item" onclick="selectCategory(this, 'Thực phẩm')">Thực phẩm</div>
+    </div>
 </div>
 
 <!-- PRODUCTS -->
 <div class="container">
-    <h2>SẢN PHẨM</h2>
+    <h2 class="section-title">SẢN PHẨM</h2>
     <div class="product-grid" id="products"></div>
 </div>
 
@@ -53,18 +69,40 @@
         <div id="productDetail"></div>
     </div>
 </div>
+
+<!-- CHECKOUT -->
 <div id="checkoutModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content checkout-content">
         <span class="close" onclick="closeCheckout()">&times;</span>
 
         <h2>Thông tin đặt hàng</h2>
 
-        <input id="customerName" placeholder="Tên người nhận">
-        <input id="customerPhone" placeholder="Số điện thoại">
-        <input id="customerAddress" placeholder="Địa chỉ nhận hàng">
+        <div class="checkout-form">
+            <div class="form-row">
+                <label>Tên người nhận <span>*</span></label>
+                <input id="customerName" placeholder="Nhập tên người nhận">
+            </div>
 
-        <button onclick="submitOrder()">Xác nhận đặt hàng</button>
+            <div class="form-row">
+                <label>Số điện thoại <span>*</span></label>
+                <input id="customerPhone" placeholder="Nhập số điện thoại">
+            </div>
+
+            <div class="form-row">
+                <label>Địa chỉ nhận hàng <span>*</span></label>
+                <input id="customerAddress" placeholder="Nhập địa chỉ nhận hàng">
+            </div>
+        </div>
+
+        <div class="checkout-actions">
+            <button class="btn-back" onclick="closeCheckout()">Quay lại</button>
+            <button class="btn-buy" onclick="submitOrder()">Xác nhận đặt hàng</button>
+        </div>
     </div>
+</div>
+<div id="toast" class="toast">
+    <span id="toast-msg">Thành công</span>
+    <span class="toast-close" onclick="closeToast()">×</span>
 </div>
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>

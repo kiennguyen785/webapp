@@ -48,3 +48,41 @@ ALTER TABLE cart
 ADD CONSTRAINT FK_cart_products
 FOREIGN KEY (item_id) REFERENCES products(item_id);
 GO
+
+
+
+
+
+
+ALTER TABLE users ADD
+    full_name NVARCHAR(255) NULL,
+    phone NVARCHAR(20) NULL,
+    address NVARCHAR(500) NULL,
+    is_profile_completed BIT DEFAULT 0;
+
+ALTER TABLE products_real ADD
+    quantity INT DEFAULT 100;
+
+CREATE TABLE orders (
+    order_id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    customer_name NVARCHAR(255),
+    phone NVARCHAR(20),
+    address NVARCHAR(500),
+    note NVARCHAR(500),
+    payment_method NVARCHAR(100),
+    total_price INT,
+    order_time DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE order_items (
+    order_item_id INT IDENTITY(1,1) PRIMARY KEY,
+    order_id INT NOT NULL,
+    item_id INT NOT NULL,
+    quantity INT DEFAULT 1,
+    price INT,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+);
+UPDATE products_real
+SET quantity = 123;

@@ -2,17 +2,20 @@
 <html>
 <head>
     <title>Register</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
 </head>
 <body>
 
 <div class="auth-container">
-    <h2>Đăng ký</h2>
+    <span class="close-btn" onclick="window.location.href='/'">×</span>
+    <h2>Register</h2>
     <input id="username" placeholder="Username">
     <input id="password" type="password" placeholder="Password">
-    <button onclick="register()">Đăng ký</button>
+    <input id="confirmPassword" type="password" placeholder="Confirm Password">
 
-    <p>Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>
+    <button onclick="register()">Đâng ký</button>
+
+    <p>Bạn đã có tài khoản ? <a href="/login">Đăng nhập</a></p>
 </div>
 
 <script src="script.js"></script>

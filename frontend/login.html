@@ -2,17 +2,17 @@
 <html>
 <head>
     <title>Login</title>
-    <link rel="stylesheet" href="style.css">
-</head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}"></head>
 <body>
 
 <div class="auth-container">
+    <span class="close-btn" onclick="window.location.href='/'">×</span>
     <h2>Đăng nhập</h2>
     <input id="username" placeholder="Username">
     <input id="password" type="password" placeholder="Password">
     <button onclick="login()">Đăng nhập</button>
 
-    <p>Chưa có tài khoản? <a href="register.html">Đăng ký</a></p>
+    <p>Chưa có tài khoản? <a href="/register">Đăng ký</a></p>
 </div>
 
 <script src="script.js"></script>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thông tin cá nhân</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='login.css') }}">
+</head>
+
+<body>
+
+<div class="auth-container profile-box">
+
+    <span class="close-btn"
+          onclick="window.location.href='/'">×</span>
+
+    <h2>Thông tin cá nhân</h2>
+
+    <input id="fullName"
+           placeholder="Họ và tên">
+
+    <input id="phone"
+           placeholder="Số điện thoại">
+
+    <input id="address"
+           placeholder="Địa chỉ">
+
+    <button onclick="saveProfile()">
+        Lưu thông tin
+    </button>
+
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
