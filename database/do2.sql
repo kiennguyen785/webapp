@@ -135,4 +135,55 @@ REFERENCES products_real(item_id);
 ALTER TABLE events
 DROP CONSTRAINT FK_events_products;
 
+
 SELECT TOP 10 * FROM cart ORDER BY cart_id DESC;
+ALTER TABLE events
+ADD CONSTRAINT FK_events_products_real
+FOREIGN KEY (item_id)
+REFERENCES products_real(item_id);
+
+SELECT item_id, COUNT(*) AS so_lan_trung
+FROM products_real
+GROUP BY item_id
+HAVING COUNT(*) > 1;
+
+ALTER TABLE products_real
+ADD CONSTRAINT UQ_products_real_item_id UNIQUE (item_id);
+GO
+
+ALTER TABLE events
+ADD CONSTRAINT FK_events_products_real
+FOREIGN KEY (item_id)
+REFERENCES products_real(item_id);
+GO
+
+SELECT 
+    TABLE_NAME,
+    COLUMN_NAME,
+    DATA_TYPE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME IN ('events', 'products_real')
+  AND COLUMN_NAME = 'item_id';
+
+  SELECT item_id
+FROM products_real
+WHERE TRY_CAST(item_id AS INT) IS NULL;
+
+ALTER TABLE products_real
+ADD CONSTRAINT UQ_products_real_item_id UNIQUE (item_id);
+GO
+ALTER TABLE products_real
+DROP CONSTRAINT UQ_products_real_item_id;
+GO
+
+ALTER TABLE events
+ADD CONSTRAINT FK_events_products_real
+FOREIGN KEY (item_id)
+REFERENCES products_real(item_id);
+GO
+
+ALTER TABLE cart
+ADD CONSTRAINT FK_cart_products_real
+FOREIGN KEY (item_id)
+REFERENCES products_real(item_id);
+GO

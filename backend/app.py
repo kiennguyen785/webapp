@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, session, redirect
 import pyodbc
 
 app = Flask(
@@ -6,7 +6,7 @@ app = Flask(
     template_folder="../frontend",
     static_folder="../frontend"
 )
-
+app.secret_key = "da2_secret_key"
 
 def get_connection():
     return pyodbc.connect(
@@ -21,8 +21,11 @@ def get_connection():
 
 @app.route("/")
 def home():
-    return render_template("home.html")
-
+    return render_template(
+        "home.html",
+        username=session.get("username"),
+        role=session.get("role")
+    )
 
 @app.route("/login")
 def login_page():
@@ -225,6 +228,11 @@ def login_api():
             "message": "Sai tài khoản hoặc mật khẩu"
         })
 
+        session["user_id"] = row[0]
+        session["username"] = row[1]
+        session["role"] = row[2]
+        session["is_profile_completed"] = bool(row[3])
+    
     return jsonify({
         "status": "ok",
         "user_id": row[0],
@@ -294,13 +302,20 @@ def update_profile():
 
 @app.route("/event", methods=["POST"])
 def save_event():
+
+    if "user_id" not in session:
+        return jsonify({
+            "status": "error",
+            "message": "Bạn chưa đăng nhập"
+        }), 401
+
     data = request.get_json()
 
-    user_id = data.get("user_id")
+    user_id = session["user_id"]
     item_id = data.get("item_id")
     event_type = data.get("event_type")
 
-    if not user_id or not item_id or not event_type:
+    if not item_id or not event_type:
         return jsonify({
             "status": "error",
             "message": "Thiếu dữ liệu event"
@@ -310,7 +325,11 @@ def save_event():
     cursor = conn.cursor()
 
     cursor.execute("""
-        INSERT INTO events (user_id, item_id, event_type)
+        INSERT INTO events (
+            user_id,
+            item_id,
+            event_type
+        )
         VALUES (?, ?, ?)
     """, user_id, item_id, event_type)
 
@@ -649,5 +668,9 @@ def checkout_cart():
         "status": "ok",
         "message": "Đặt hàng thành công"
     })
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
 if __name__ == "__main__":
     app.run(debug=True)

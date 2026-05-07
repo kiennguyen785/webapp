@@ -404,7 +404,6 @@ function getCurrentUserId() {
 
 function updateAuthArea() {
     const authArea = document.getElementById("authArea");
-
     if (!authArea) return;
 
     const username = localStorage.getItem("username");
@@ -413,22 +412,26 @@ function updateAuthArea() {
         authArea.innerHTML = `
             <div class="user-menu">
                 👤 ${username}
-
-                <div class="dropdown">
-                    <a href="/profile">Thông tin cá nhân</a>
-                    <a href="/orders">Đơn hàng</a>
-                    <a href="#" onclick="logout()">Đăng xuất</a>
+                <div class="user-dropdown">
+                    <div onclick="window.location.href='/profile'">Thông tin cá nhân</div>
+                    <div onclick="logout()">Đăng xuất</div>
                 </div>
             </div>
         `;
     } else {
         authArea.innerHTML = `
             <div class="auth-buttons">
-                <a href="/login">Đăng nhập</a>
-                <a href="/register">Đăng ký</a>
+                <div class="auth-btn" onclick="window.location.href='/login'">Đăng nhập</div>
+                <div class="auth-btn" onclick="window.location.href='/register'">Đăng ký</div>
             </div>
         `;
     }
+}
+
+function logout() {
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("username");
+    window.location.href = "/";
 }
 
 function saveProfile() {
