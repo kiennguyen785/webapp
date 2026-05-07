@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Gợi ý sản phẩm</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header class="header">
+    <div class="logo" onclick="window.location.href='/'">Mini Shop</div>
+
+    <div class="search">
+        <input id="searchInput" type="text" placeholder="Tìm sản phẩm...">
+        <button onclick="searchProducts()">Tìm</button>
+    </div>
+
+    <nav>
+        <a href="/">Trang chủ</a>
+        <a href="/products">Sản phẩm</a>
+        <a href="/recommend" class="active-nav">Gợi ý</a>
+        <a href="/cart">Giỏ hàng</a>
+
+        <div id="authArea">
+            {% if username %}
+                <div class="user-menu">
+                    👤 {{ username }}
+                    <div class="user-dropdown">
+                        <div onclick="window.location.href='/profile'">Thông tin cá nhân</div>
+                        <div onclick="window.location.href='/orders'">Lịch sử mua hàng</div>
+                        <div onclick="logout()">Đăng xuất</div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="auth-buttons">
+                    <div class="auth-btn" onclick="window.location.href='/login'">Đăng nhập</div>
+                    <div class="auth-btn" onclick="window.location.href='/register'">Đăng ký</div>
+                </div>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+<div class="container">
+    <h2 class="section-title">SẢN PHẨM GỢI Ý CHO BẠN</h2>
+    <div class="product-grid" id="products"></div>
+    <div id="emptyRecommend" class="empty-recommend">
+    Chưa đủ dữ liệu để gợi ý sản phẩm. Hãy xem hoặc thêm vài sản phẩm vào giỏ hàng.
+</div>
+</div>
+
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="productDetail"></div>
+    </div>
+</div>
+
+<div id="toast" class="toast">
+    <span id="toast-msg">Thành công</span>
+    <span class="toast-close" onclick="closeToast()">×</span>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

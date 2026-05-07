@@ -23,8 +23,92 @@
 
     </div>
 
-</header>
+    <div class="search">
 
+        <input
+            id="searchInput"
+            type="text"
+            placeholder="Tìm sản phẩm..."
+        >
+
+        <button onclick="searchProducts()">
+            Tìm
+        </button>
+
+    </div>
+
+    <nav>
+
+        <a href="/">
+            Trang chủ
+        </a>
+
+        <a href="/products">
+            Sản phẩm
+        </a>
+
+        <a href="/recommend">
+            Gợi ý
+        </a>
+
+        <a href="/cart"
+           class="active-nav">
+            Giỏ hàng
+        </a>
+
+        <div id="authArea">
+
+            {% if username %}
+
+                <div class="user-menu">
+
+                    👤 {{ username }}
+
+                    <div class="user-dropdown">
+
+                        <div onclick="window.location.href='/profile'">
+                            Thông tin cá nhân
+                        </div>
+
+                        <div onclick="window.location.href='/orders'">
+                            Lịch sử mua hàng
+                        </div>
+
+                        <div onclick="logout()">
+                            Đăng xuất
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <div class="auth-buttons">
+
+                    <div class="auth-btn"
+                         onclick="window.location.href='/login'">
+
+                        Đăng nhập
+
+                    </div>
+
+                    <div class="auth-btn"
+                         onclick="window.location.href='/register'">
+
+                        Đăng ký
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </nav>
+
+</header>
 
 <div class="cart-page">
 
@@ -43,6 +127,15 @@
         </button>
 
     </div>
+
+</div>
+
+<div id="toast" class="toast">
+
+    <span id="toast-msg">Thành công</span>
+
+    <span class="toast-close"
+          onclick="closeToast()">×</span>
 
 </div>
 

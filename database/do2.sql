@@ -187,3 +187,36 @@ ADD CONSTRAINT FK_cart_products_real
 FOREIGN KEY (item_id)
 REFERENCES products_real(item_id);
 GO
+use DA2
+GO
+ALTER TABLE order_items
+ADD CONSTRAINT FK_order_items_products_real
+FOREIGN KEY (item_id)
+REFERENCES products_real(item_id);
+
+
+ALTER TABLE cart
+ADD CONSTRAINT UQ_cart_user_item UNIQUE (user_id, item_id);
+
+
+ALTER TABLE cart
+ADD CONSTRAINT CK_cart_quantity CHECK (quantity > 0);
+
+ALTER TABLE order_items
+ADD CONSTRAINT CK_order_items_quantity CHECK (quantity > 0);
+use DA2
+go
+SELECT 
+    fk.name AS FK_Name,
+    OBJECT_NAME(fk.parent_object_id) AS Table_Name
+FROM sys.foreign_keys fk
+WHERE OBJECT_NAME(fk.parent_object_id) = 'events';
+SELECT TOP 20 *
+FROM events
+ORDER BY event_time DESC;
+
+SELECT TOP 20 e.*, p.product_name
+FROM events e
+JOIN products_real p
+ON e.item_id = p.item_id
+ORDER BY e.event_time DESC;

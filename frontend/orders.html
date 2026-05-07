@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử mua hàng</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="header">
+
+    <div class="logo" onclick="window.location.href='/'">
+        Mini Shop
+    </div>
+
+    <nav>
+        <a href="/">Trang chủ</a>
+        <a href="/cart">Giỏ hàng</a>
+        <a href="/recommend">Gợi ý</a>
+        <a href="/orders" class="active-nav">Lịch sử mua hàng</a>
+    </nav>
+
+</header>
+
+<div class="order-page">
+
+    <h1>Lịch sử mua hàng</h1>
+
+    <div id="orders"></div>
+
+</div>
+
+<div id="toast" class="toast">
+    <span id="toast-msg">Thành công</span>
+    <span class="toast-close" onclick="closeToast()">×</span>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

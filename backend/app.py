@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, render_template, request, session, redirect
+from recommend import get_recommend_products
 import pyodbc
 
 app = Flask(
@@ -44,7 +45,11 @@ def profile_page():
 
 @app.route("/cart")
 def cart_page():
-    return render_template("cart.html")
+    return render_template(
+        "cart.html",
+        username=session.get("username"),
+        role=session.get("role")
+    )
 
 
 @app.route("/orders")
@@ -56,8 +61,15 @@ def orders_page():
 def product_detail_page(item_id):
     return render_template("product_detail.html")
 
-
 @app.route("/products")
+def products_page():
+    return render_template(
+        "products.html",
+        username=session.get("username"),
+        role=session.get("role")
+    )
+
+@app.route("/api/products")
 def get_products():
     conn = get_connection()
     cursor = conn.cursor()
@@ -83,8 +95,30 @@ def get_products():
         })
 
     return jsonify(data)
+@app.route("/recommend")
+def recommend_page():
+    return render_template(
+        "recommend.html",
+        username=session.get("username"),
+        role=session.get("role")
+    )
+@app.route("/api/recommend")
+def recommend_api():
+    if "user_id" not in session:
+        return jsonify([])
 
+    conn = get_connection()
+    cursor = conn.cursor()
 
+    data = get_recommend_products(
+        cursor,
+        session["user_id"],
+        top_k=5
+    )
+
+    conn.close()
+
+    return jsonify(data)
 @app.route("/category/<category_name>")
 def get_products_by_category(category_name):
     conn = get_connection()
@@ -183,6 +217,10 @@ def register_api():
 
         user_id = cursor.fetchone()[0]
         conn.commit()
+        session["user_id"] = user_id
+        session["username"] = username
+        session["role"] = "user"
+        session["is_profile_completed"] = False
 
         return jsonify({
             "status": "ok",
@@ -193,12 +231,13 @@ def register_api():
             "profile_completed": False
         })
 
-    except Exception:
+    except Exception as e:
+        print("LỖI REGISTER:", e)
+
         return jsonify({
             "status": "error",
             "message": "Tên đăng nhập đã tồn tại"
         })
-
     finally:
         conn.close()
 
@@ -228,11 +267,11 @@ def login_api():
             "message": "Sai tài khoản hoặc mật khẩu"
         })
 
-        session["user_id"] = row[0]
-        session["username"] = row[1]
-        session["role"] = row[2]
-        session["is_profile_completed"] = bool(row[3])
-    
+    session["user_id"] = row[0]
+    session["username"] = row[1]
+    session["role"] = row[2]
+    session["is_profile_completed"] = bool(row[3])
+
     return jsonify({
         "status": "ok",
         "user_id": row[0],
@@ -242,8 +281,16 @@ def login_api():
     })
 
 
-@app.route("/api/profile/<int:user_id>")
-def get_profile(user_id):
+@app.route("/api/profile")
+def get_profile():
+    if "user_id" not in session:
+        return jsonify({
+            "status": "error",
+            "message": "Bạn chưa đăng nhập"
+        }), 401
+
+    user_id = session["user_id"]
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -272,12 +319,36 @@ def get_profile(user_id):
 
 @app.route("/api/profile/update", methods=["POST"])
 def update_profile():
+    if "user_id" not in session:
+        return jsonify({
+            "status": "error",
+            "message": "Bạn chưa đăng nhập"
+        }), 401
+
     data = request.get_json()
 
-    user_id = data.get("user_id")
-    full_name = data.get("full_name")
-    phone = data.get("phone")
-    address = data.get("address")
+    user_id = session["user_id"]
+    full_name = data.get("full_name", "").strip()
+    phone = data.get("phone", "").strip()
+    address = data.get("address", "").strip()
+
+    if len(full_name) < 2:
+        return jsonify({
+            "status": "error",
+            "message": "Họ tên không hợp lệ"
+        })
+
+    if not phone.isdigit() or len(phone) < 9 or len(phone) > 11:
+        return jsonify({
+            "status": "error",
+            "message": "Số điện thoại không hợp lệ"
+        })
+
+    if len(address) < 5:
+        return jsonify({
+            "status": "error",
+            "message": "Địa chỉ không hợp lệ"
+        })
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -294,11 +365,12 @@ def update_profile():
     conn.commit()
     conn.close()
 
+    session["is_profile_completed"] = True
+
     return jsonify({
         "status": "ok",
         "message": "Cập nhật thông tin thành công"
     })
-
 
 @app.route("/event", methods=["POST"])
 def save_event():
@@ -340,100 +412,57 @@ def save_event():
         "status": "ok"
     })
 
-
 @app.route("/cart/add", methods=["POST"])
 def add_to_cart():
-
-    try:
-
-        data = request.get_json()
-
-        user_id = data.get("user_id")
-        item_id = data.get("item_id")
-        quantity = data.get("quantity", 1)
-
-        if not user_id or not item_id:
-
-            return jsonify({
-                "status": "error",
-                "message": "Thiếu user_id hoặc item_id"
-            })
-
-        conn = get_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            SELECT quantity
-            FROM products_real
-            WHERE item_id = ?
-        """, item_id)
-
-        product = cursor.fetchone()
-
-        if product is None:
-
-            conn.close()
-
-            return jsonify({
-                "status": "error",
-                "message": "Không tìm thấy sản phẩm"
-            })
-
-        if product[0] <= 0:
-
-            conn.close()
-
-            return jsonify({
-                "status": "error",
-                "message": "Sản phẩm đã hết hàng"
-            })
-
-        cursor.execute("""
-            SELECT cart_id, quantity
-            FROM cart
-            WHERE user_id = ? AND item_id = ?
-        """, user_id, item_id)
-
-        row = cursor.fetchone()
-
-        if row:
-
-            cursor.execute("""
-                UPDATE cart
-                SET quantity = quantity + ?
-                WHERE user_id = ? AND item_id = ?
-            """, quantity, user_id, item_id)
-
-        else:
-
-            cursor.execute("""
-                INSERT INTO cart (
-                    user_id,
-                    item_id,
-                    quantity
-                )
-                VALUES (?, ?, ?)
-            """, user_id, item_id, quantity)
-
-        conn.commit()
-        conn.close()
-
-        return jsonify({
-            "status": "added",
-            "message": "Đã thêm vào giỏ hàng"
-        })
-
-    except Exception as e:
-
-        print("LỖI CART:", e)
-
+    if "user_id" not in session:
         return jsonify({
             "status": "error",
-            "message": str(e)
-        })
+            "message": "Bạn chưa đăng nhập"
+        }), 401
 
-@app.route("/api/cart/<int:user_id>")
-def get_cart(user_id):
+    data = request.get_json()
+
+    user_id = session["user_id"]
+    item_id = data.get("item_id")
+    quantity = data.get("quantity", 1)
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT cart_id
+        FROM cart
+        WHERE user_id = ? AND item_id = ?
+    """, user_id, item_id)
+
+    row = cursor.fetchone()
+
+    if row:
+        cursor.execute("""
+            UPDATE cart
+            SET quantity = quantity + ?
+            WHERE user_id = ? AND item_id = ?
+        """, quantity, user_id, item_id)
+    else:
+        cursor.execute("""
+            INSERT INTO cart (user_id, item_id, quantity)
+            VALUES (?, ?, ?)
+        """, user_id, item_id, quantity)
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "status": "ok",
+        "message": "Đã thêm vào giỏ hàng"
+    })
+@app.route("/api/cart")
+def get_cart():
+    if "user_id" not in session:
+        return jsonify([]), 401
+
+    user_id = session["user_id"]
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -472,10 +501,14 @@ def get_cart(user_id):
     return jsonify(data)
 @app.route("/cart/update", methods=["POST"])
 def update_cart_quantity():
+    if "user_id" not in session:
+        return jsonify({"status": "error", "message": "Bạn chưa đăng nhập"}), 401
+
     data = request.get_json()
 
     cart_id = data.get("cart_id")
     action = data.get("action")
+    user_id = session["user_id"]
 
     if not cart_id or action not in ["increase", "decrease"]:
         return jsonify({"status": "error", "message": "Dữ liệu không hợp lệ"})
@@ -486,8 +519,8 @@ def update_cart_quantity():
     cursor.execute("""
         SELECT quantity
         FROM cart
-        WHERE cart_id = ?
-    """, cart_id)
+        WHERE cart_id = ? AND user_id = ?
+    """, cart_id, user_id)
 
     row = cursor.fetchone()
 
@@ -501,21 +534,21 @@ def update_cart_quantity():
         cursor.execute("""
             UPDATE cart
             SET quantity = quantity + 1
-            WHERE cart_id = ?
-        """, cart_id)
+            WHERE cart_id = ? AND user_id = ?
+        """, cart_id, user_id)
 
     elif action == "decrease":
         if current_qty <= 1:
             cursor.execute("""
                 DELETE FROM cart
-                WHERE cart_id = ?
-            """, cart_id)
+                WHERE cart_id = ? AND user_id = ?
+            """, cart_id, user_id)
         else:
             cursor.execute("""
                 UPDATE cart
                 SET quantity = quantity - 1
-                WHERE cart_id = ?
-            """, cart_id)
+                WHERE cart_id = ? AND user_id = ?
+            """, cart_id, user_id)
 
     conn.commit()
     conn.close()
@@ -523,9 +556,13 @@ def update_cart_quantity():
     return jsonify({"status": "ok"})
 @app.route("/cart/remove", methods=["POST"])
 def remove_cart_item():
+    if "user_id" not in session:
+        return jsonify({"status": "error", "message": "Bạn chưa đăng nhập"}), 401
+
     data = request.get_json()
 
     cart_id = data.get("cart_id")
+    user_id = session["user_id"]
 
     if not cart_id:
         return jsonify({"status": "error", "message": "Thiếu cart_id"})
@@ -535,8 +572,8 @@ def remove_cart_item():
 
     cursor.execute("""
         DELETE FROM cart
-        WHERE cart_id = ?
-    """, cart_id)
+        WHERE cart_id = ? AND user_id = ?
+    """, cart_id, user_id)
 
     conn.commit()
     conn.close()
@@ -544,122 +581,139 @@ def remove_cart_item():
     return jsonify({"status": "ok"})
 @app.route("/cart/checkout", methods=["POST"])
 def checkout_cart():
-
-    data = request.get_json()
-
-    user_id = data.get("user_id")
-
-    if not user_id:
-
+    if "user_id" not in session:
         return jsonify({
             "status": "error",
-            "message": "Thiếu user_id"
-        })
+            "message": "Bạn chưa đăng nhập"
+        }), 401
+
+    data = request.get_json() or {}
+
+    user_id = session["user_id"]
+    item_id = data.get("item_id")
+    quantity = data.get("quantity", 1)
 
     conn = get_connection()
     cursor = conn.cursor()
 
-    # Lấy sản phẩm trong cart
-    cursor.execute("""
+    # Đặt trực tiếp từ home / product detail / recommend
+    if item_id:
+        cursor.execute("""
+            SELECT item_id, price, quantity
+            FROM products_real
+            WHERE item_id = ?
+        """, item_id)
 
-        SELECT
-            c.item_id,
-            c.quantity,
-            p.price
+        row = cursor.fetchone()
 
-        FROM cart c
+        if row is None:
+            conn.close()
+            return jsonify({
+                "status": "error",
+                "message": "Không tìm thấy sản phẩm"
+            })
 
-        JOIN products_real p
-            ON c.item_id = p.item_id
+        if quantity > row[2]:
+            conn.close()
+            return jsonify({
+                "status": "error",
+                "message": "Số lượng trong kho không đủ"
+            })
 
-        WHERE c.user_id = ?
+        items = [{
+            "item_id": row[0],
+            "quantity": quantity,
+            "price": row[1],
+            "stock": row[2]
+        }]
 
-    """, user_id)
+    # Đặt hàng từ giỏ hàng
+    else:
+        cursor.execute("""
+            SELECT
+                c.item_id,
+                c.quantity,
+                p.price,
+                p.quantity
+            FROM cart c
+            JOIN products_real p ON c.item_id = p.item_id
+            WHERE c.user_id = ?
+        """, user_id)
 
-    cart_items = cursor.fetchall()
+        rows = cursor.fetchall()
 
-    if len(cart_items) == 0:
+        if len(rows) == 0:
+            conn.close()
+            return jsonify({
+                "status": "error",
+                "message": "Giỏ hàng trống"
+            })
 
-        conn.close()
+        items = []
 
-        return jsonify({
-            "status": "error",
-            "message": "Giỏ hàng trống"
-        })
+        for row in rows:
+            items.append({
+                "item_id": row[0],
+                "quantity": row[1],
+                "price": row[2],
+                "stock": row[3]
+            })
 
     total_price = 0
 
-    for item in cart_items:
+    for item in items:
+        if item["quantity"] > item["stock"]:
+            conn.close()
+            return jsonify({
+                "status": "error",
+                "message": "Số lượng trong kho không đủ"
+            })
 
-        total_price += item[1] * item[2]
+        total_price += item["quantity"] * item["price"]
 
-    # tạo order
     cursor.execute("""
-
         INSERT INTO orders (
             user_id,
             total_price
         )
-
         OUTPUT INSERTED.order_id
-
         VALUES (?, ?)
-
     """, user_id, total_price)
 
     order_id = cursor.fetchone()[0]
 
-    # thêm order_items
-    for item in cart_items:
-
-        item_id = item[0]
-        quantity = item[1]
-        price = item[2]
-
+    for item in items:
         cursor.execute("""
-
             INSERT INTO order_items (
                 order_id,
                 item_id,
                 quantity,
                 price
             )
-
             VALUES (?, ?, ?, ?)
+        """, order_id, item["item_id"], item["quantity"], item["price"])
 
-        """, order_id, item_id, quantity, price)
-
-        # trừ tồn kho
         cursor.execute("""
-
             UPDATE products_real
-
             SET quantity = quantity - ?
-
             WHERE item_id = ?
+        """, item["quantity"], item["item_id"])
 
-        """, quantity, item_id)
-
-        # lưu purchase event
         cursor.execute("""
-
             INSERT INTO events (
                 user_id,
                 item_id,
                 event_type
             )
-
             VALUES (?, ?, ?)
+        """, user_id, item["item_id"], "purchase")
 
-        """, user_id, item_id, "purchase")
-
-    # xóa cart
-    cursor.execute("""
-
-        DELETE FROM cart
-        WHERE user_id = ?
-
-    """, user_id)
+    # Nếu checkout từ cart thì xoá cart của đúng user
+    if not item_id:
+        cursor.execute("""
+            DELETE FROM cart
+            WHERE user_id = ?
+        """, user_id)
 
     conn.commit()
     conn.close()
@@ -668,6 +722,51 @@ def checkout_cart():
         "status": "ok",
         "message": "Đặt hàng thành công"
     })
+@app.route("/api/orders")
+def get_orders():
+    if "user_id" not in session:
+        return jsonify([])
+
+    user_id = session["user_id"]
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            o.order_id,
+            o.total_price,
+            o.order_time,
+            oi.item_id,
+            p.product_name,
+            oi.quantity,
+            oi.price,
+            p.image_url
+        FROM orders o
+        JOIN order_items oi ON o.order_id = oi.order_id
+        JOIN products_real p ON oi.item_id = p.item_id
+        WHERE o.user_id = ?
+        ORDER BY o.order_time DESC
+    """, user_id)
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    data = []
+
+    for row in rows:
+        data.append({
+            "order_id": row[0],
+            "total_price": row[1],
+            "order_time": str(row[2]),
+            "item_id": row[3],
+            "product_name": row[4],
+            "quantity": row[5],
+            "price": row[6],
+            "image": row[7]
+        })
+
+    return jsonify(data)
 @app.route("/logout")
 def logout():
     session.clear()

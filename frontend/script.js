@@ -7,11 +7,13 @@ const images = [
     "https://down-vn.img.susercontent.com/file/vn-11134258-81ztc-mmeqgc5lb0g832@resize_w1920_nl.webp"
 ];
 
+/* ================= PRODUCT ================= */
+
 function loadProducts() {
     const box = document.getElementById("products");
     if (!box) return;
 
-    fetch("/products")
+    fetch("api/products")
         .then(res => res.json())
         .then(data => {
             allProducts = data;
@@ -43,8 +45,8 @@ function renderProducts(products) {
 
                     <div class="card-actions">
                         <button onclick="openProduct(${p.item_id})">Xem</button>
-                        <button type="button" ${isOut ? "disabled" : ""} onclick="addToCart(${p.item_id})">Giỏ hàng</button>
-                        <button ${isOut ? "disabled" : ""} onclick="event.stopPropagation(); openCheckout(${p.item_id})">Đặt hàng</button>
+                        <button ${isOut ? "disabled" : ""} onclick="addToCart(${p.item_id})">Giỏ hàng</button>
+                        <button ${isOut ? "disabled" : ""} onclick="openCheckout(${p.item_id})">Đặt hàng</button>
                     </div>
                 </div>
             </div>
@@ -62,7 +64,42 @@ function loadCategory(category) {
             renderProducts(data);
         });
 }
+function loadRecommend() {
 
+    const box = document.getElementById("products");
+
+    if (!box) return;
+
+    fetch("/api/recommend")
+
+        .then(res => res.json())
+
+        .then(data => {
+
+            if (data.length === 0) {
+
+                box.innerHTML = "";
+
+                const empty = document.getElementById("emptyRecommend");
+
+                if (empty) {
+                    empty.style.display = "block";
+                }
+
+                return;
+            }
+
+            const empty = document.getElementById("emptyRecommend");
+
+            if (empty) {
+                empty.style.display = "none";
+            }
+
+            allProducts = data;
+
+            renderProducts(data);
+        });
+}
 function openProduct(id) {
     fetch(`/api/product/${id}`)
         .then(res => res.json())
@@ -82,14 +119,8 @@ function openProduct(id) {
                     <div class="detail-info">
                         <h2>${p.name}</h2>
                         <div class="detail-category">Danh mục: ${p.category}</div>
-
-                        <div class="detail-price">
-                            ${Number(p.price).toLocaleString()}₫
-                        </div>
-
-                        <div class="detail-stock">
-                            Còn lại: ${p.quantity}
-                        </div>
+                        <div class="detail-price">${Number(p.price).toLocaleString()}₫</div>
+                        <div class="detail-stock">Còn lại: ${p.quantity}</div>
 
                         <p class="detail-desc">
                             ${p.description || "Sản phẩm hiện chưa có mô tả chi tiết."}
@@ -114,152 +145,7 @@ function closeModal() {
     if (modal) modal.style.display = "none";
 }
 
-function openCheckout(itemId) {
-    const userId = getCurrentUserId();
-
-    if (!userId) {
-        alert("Vui lòng đăng nhập trước khi đặt hàng");
-        window.location.href = "/login";
-        return;
-    }
-
-    currentOrderItemId = itemId;
-
-    const checkoutModal = document.getElementById("checkoutModal");
-    if (checkoutModal) checkoutModal.style.display = "block";
-}
-
-function closeCheckout() {
-    const checkoutModal = document.getElementById("checkoutModal");
-    if (checkoutModal) checkoutModal.style.display = "none";
-}
-
-function submitOrder() {
-    const name = document.getElementById("customerName").value.trim();
-    const phone = document.getElementById("customerPhone").value.trim();
-    const address = document.getElementById("customerAddress").value.trim();
-
-    if (!name || !phone || !address) {
-        showToast("Vui lòng nhập đầy đủ thông tin đặt hàng");
-        return;
-    }
-
-    if (name.length < 2) {
-        showToast("Tên người nhận không hợp lệ");
-        return;
-    }
-
-    const phoneRegex = /^0\d{9}$/;
-    if (!phoneRegex.test(phone)) {
-        showToast("Số điện thoại không hợp lệ");
-        return;
-    }
-
-    if (address.length < 5) {
-        showToast("Địa chỉ nhận hàng quá ngắn");
-        return;
-    }
-
-    saveEvent(currentOrderItemId, "purchase");
-
-    closeCheckout();
-    closeModal();
-
-    showToast("Đặt hàng thành công");
-
-    document.getElementById("customerName").value = "";
-    document.getElementById("customerPhone").value = "";
-    document.getElementById("customerAddress").value = "";
-}
-
-function saveEvent(itemId, type) {
-    const userId = getCurrentUserId();
-
-    if (!userId) return;
-
-    fetch("/event", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            user_id: Number(userId),
-            item_id: itemId,
-            event_type: type
-        })
-    });
-}
-
-function addToCart(id) {
-    const userId = getCurrentUserId();
-
-    if (!userId) {
-        alert("Vui lòng đăng nhập trước khi thêm giỏ hàng");
-        window.location.href = "/login";
-        return;
-    }
-
-    fetch("/cart/add", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            user_id: Number(userId),
-            item_id: id,
-            quantity: 1
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log("Kết quả thêm giỏ:", data);
-
-        if (data.status === "error") {
-            alert(data.message);
-            return;
-        }
-
-        saveEvent(id, "add_to_cart");
-
-        alert("Đã thêm vào giỏ hàng");
-    })
-    .catch(err => {
-        console.log(err);
-        alert("Lỗi thêm giỏ hàng");
-    });
-}
-
-function buyNow(id) {
-    openCheckout(id);
-}
-
-function goToCart() {
-    window.location.href = "/cart";
-}
-
-function goToCheckout(itemId) {
-    window.location.href = `/checkout/${itemId}`;
-}
-
-function showSlide(index) {
-    const banner = document.getElementById("banner");
-
-    if (!banner) return;
-
-    if (index >= images.length) {
-        currentIndex = 0;
-    } else if (index < 0) {
-        currentIndex = images.length - 1;
-    } else {
-        currentIndex = index;
-    }
-
-    banner.src = images[currentIndex];
-}
-
-function nextSlide() {
-    showSlide(currentIndex + 1);
-}
-
-function prevSlide() {
-    showSlide(currentIndex - 1);
-}
+/* ================= SEARCH ================= */
 
 function searchProducts() {
     const input = document.getElementById("searchInput");
@@ -305,247 +191,77 @@ function selectCategory(element, category) {
     }
 }
 
-function showToast(message) {
-    const toast = document.getElementById("toast");
-    const msg = document.getElementById("toast-msg");
+/* ================= EVENT ================= */
 
-    if (!toast || !msg) {
-        alert(message);
-        return;
-    }
-
-    msg.innerText = message;
-    toast.classList.add("show");
-
-    setTimeout(() => {
-        toast.classList.remove("show");
-    }, 2500);
-}
-
-function closeToast() {
-    const toast = document.getElementById("toast");
-    if (toast) toast.classList.remove("show");
-}
-
-function register() {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const confirm = document.getElementById("confirmPassword").value.trim();
-
-    if (!username || !password || !confirm) {
-        alert("Vui lòng nhập đầy đủ thông tin");
-        return;
-    }
-
-    if (password.length < 6) {
-        alert("Mật khẩu phải có ít nhất 6 ký tự");
-        return;
-    }
-
-    if (password !== confirm) {
-        alert("Mật khẩu nhập lại không khớp");
-        return;
-    }
-
-    fetch("/api/register", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ username, password })
-    })
-    .then(res => res.json())
-    .then(data => {
-        alert(data.message);
-
-        if (data.status === "ok") {
-            localStorage.setItem("user_id", data.user_id);
-            localStorage.setItem("username", data.username);
-            localStorage.setItem("role", data.role || "user");
-            window.location.href = "/profile";
-        }
-    });
-}
-
-function login() {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
-
-    if (!username || !password) {
-        alert("Vui lòng nhập tài khoản và mật khẩu");
-        return;
-    }
-
-    fetch("/api/login", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ username, password })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status !== "ok") {
-            alert(data.message);
-            return;
-        }
-
-        localStorage.setItem("user_id", data.user_id);
-        localStorage.setItem("username", data.username);
-        localStorage.setItem("role", data.role || "user");
-
-        if (data.profile_completed) {
-            window.location.href = "/";
-        } else {
-            window.location.href = "/profile";
-        }
-    });
-}
-
-function getCurrentUserId() {
-    return localStorage.getItem("user_id");
-}
-
-function updateAuthArea() {
-    const authArea = document.getElementById("authArea");
-    if (!authArea) return;
-
-    const username = localStorage.getItem("username");
-
-    if (username) {
-        authArea.innerHTML = `
-            <div class="user-menu">
-                👤 ${username}
-                <div class="user-dropdown">
-                    <div onclick="window.location.href='/profile'">Thông tin cá nhân</div>
-                    <div onclick="logout()">Đăng xuất</div>
-                </div>
-            </div>
-        `;
-    } else {
-        authArea.innerHTML = `
-            <div class="auth-buttons">
-                <div class="auth-btn" onclick="window.location.href='/login'">Đăng nhập</div>
-                <div class="auth-btn" onclick="window.location.href='/register'">Đăng ký</div>
-            </div>
-        `;
-    }
-}
-
-function logout() {
-    localStorage.removeItem("user_id");
-    localStorage.removeItem("username");
-    window.location.href = "/";
-}
-
-function saveProfile() {
-    const userId = localStorage.getItem("user_id");
-
-    const full_name = document.getElementById("fullName").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const address = document.getElementById("address").value.trim();
-
-    if (!full_name || !phone || !address) {
-        alert("Vui lòng nhập đầy đủ thông tin");
-        return;
-    }
-
-    const phoneRegex = /^0\d{9}$/;
-
-    if (!phoneRegex.test(phone)) {
-        alert("Số điện thoại không hợp lệ");
-        return;
-    }
-
-    fetch("/api/profile/update", {
+function saveEvent(itemId, type) {
+    fetch("/event", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            user_id: Number(userId),
-            full_name,
-            phone,
-            address
+            item_id: itemId,
+            event_type: type
         })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === "ok") {
-            alert("Cập nhật thành công");
-            window.location.href = "/";
-        }
     });
 }
 
-function logout() {
-    localStorage.removeItem("user_id");
-    localStorage.removeItem("username");
-    localStorage.removeItem("role");
+/* ================= CART ================= */
 
-    window.location.href = "/";
+function addToCart(id) {
+    fetch("/cart/add", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            item_id: id,
+            quantity: 1
+        })
+    })
+    .then(res => {
+        if (res.status === 401) {
+            window.location.href = "/login";
+            return null;
+        }
+
+        return res.json();
+    })
+    .then(data => {
+        if (!data) return;
+
+        if (data.status === "error") {
+            showToast(data.message);
+            return;
+        }
+
+        saveEvent(id, "add_to_cart");
+        showToast("Đã thêm vào giỏ hàng");
+    });
 }
 
-function loadProfile() {
-    const userId = localStorage.getItem("user_id");
-
-    if (!userId) return;
-
-    fetch(`/api/profile/${userId}`)
-        .then(res => res.json())
-        .then(data => {
-            const fullName = document.getElementById("fullName");
-            const phone = document.getElementById("phone");
-            const address = document.getElementById("address");
-
-            if (!fullName || !phone || !address) return;
-
-            fullName.value = data.full_name || "";
-            phone.value = data.phone || "";
-            address.value = data.address || "";
-        });
+function goToCart() {
+    window.location.href = "/cart";
 }
 
-function requireLogin() {
-    const userId = localStorage.getItem("user_id");
-    const path = window.location.pathname;
-
-    const protectedPages = [
-        "/cart",
-        "/profile",
-        "/orders"
-    ];
-
-    if (!userId && protectedPages.includes(path)) {
-        window.location.href = "/login";
-    }
-}
-
-window.addEventListener("load", function () {
-    requireLogin();
-    updateAuthArea();
-    loadProfile();
-    loadProducts();
-    showSlide(0);
-
-    const input = document.getElementById("searchInput");
-
-    if (input) {
-        input.addEventListener("keydown", function (e) {
-            if (e.key === "Enter") {
-                searchProducts();
-            }
-        });
-    }
-
-    setInterval(nextSlide, 3000);
-});
 function loadCart() {
-    const userId = localStorage.getItem("user_id");
+    const box = document.getElementById("cartItems");
+    if (!box) return;
 
-    if (!userId) return;
-
-    fetch(`/api/cart/${userId}`)
-        .then(res => res.json())
+    fetch("/api/cart")
+        .then(res => {
+            if (res.status === 401) {
+                window.location.href = "/login";
+                return null;
+            }
+            return res.json();
+        })
         .then(items => {
-            const box = document.getElementById("cartItems");
+            if (!items) return;
+
             const totalBox = document.getElementById("cartTotal");
 
-            if (!box) return;
+            if (items.length === 0) {
+                box.innerHTML = `<div class="empty-cart">Giỏ hàng đang trống</div>`;
+                if (totalBox) totalBox.innerHTML = `Tổng tiền: <b>0₫</b>`;
+                return;
+            }
 
             let html = "";
             let total = 0;
@@ -559,53 +275,35 @@ function loadCart() {
 
                 html += `
                     <div class="cart-item">
-
-                        <img src="${item.image}"
-                             onerror="this.src='https://picsum.photos/300'">
+                        <img src="${item.image}" onerror="this.src='https://picsum.photos/300'">
 
                         <div class="cart-info">
-                            <div class="cart-name">
-                                ${item.name}
-                            </div>
-
-                            <div class="cart-stock">
-                                Còn lại: ${item.stock}
-                            </div>
+                            <div class="cart-name">${item.name}</div>
+                            <div class="cart-stock">Còn lại: ${item.stock}</div>
                         </div>
 
                         <div class="cart-price-box">
                             <div class="cart-label">Đơn giá</div>
-
-                            <div class="cart-price">
-                                ${price.toLocaleString()}₫
-                            </div>
+                            <div class="cart-price">${price.toLocaleString()}₫</div>
                         </div>
 
                         <div class="cart-qty-box">
                             <div class="cart-label">Số lượng</div>
-
                             <div class="qty-box">
                                 <button onclick="decreaseQty(${item.cart_id})">-</button>
-
                                 <span>${quantity}</span>
-
                                 <button onclick="increaseQty(${item.cart_id})">+</button>
                             </div>
                         </div>
 
                         <div class="cart-total-box">
                             <div class="cart-label">Tổng tiền</div>
-
-                            <div class="cart-item-total">
-                                ${itemTotal.toLocaleString()}₫
-                            </div>
+                            <div class="cart-item-total">${itemTotal.toLocaleString()}₫</div>
                         </div>
 
-                        <button class="remove-btn"
-                                onclick="removeCart(${item.cart_id})">
+                        <button class="remove-btn" onclick="removeCart(${item.cart_id})">
                             Xóa
                         </button>
-
                     </div>
                 `;
             });
@@ -634,7 +332,7 @@ function increaseQty(cartId) {
         if (data.status === "ok") {
             loadCart();
         } else {
-            alert(data.message);
+            showToast(data.message);
         }
     });
 }
@@ -653,7 +351,7 @@ function decreaseQty(cartId) {
         if (data.status === "ok") {
             loadCart();
         } else {
-            alert(data.message);
+            showToast(data.message);
         }
     });
 }
@@ -671,48 +369,414 @@ function removeCart(cartId) {
         if (data.status === "ok") {
             loadCart();
         } else {
-            alert(data.message);
+            showToast(data.message);
         }
     });
 }
+
 function checkoutCart() {
-
-    const userId =
-        localStorage.getItem("user_id");
-
-    if (!userId) {
-
-        alert("Vui lòng đăng nhập");
-
-        return;
-    }
-
     fetch("/cart/checkout", {
-
         method: "POST",
-
         headers: {
             "Content-Type": "application/json"
         },
-
-        body: JSON.stringify({
-            user_id: Number(userId)
-        })
+        body: JSON.stringify({})
     })
+    .then(res => {
+        if (res.status === 401) {
+            window.location.href = "/login";
+            return null;
+        }
 
-    .then(res => res.json())
-
+        return res.json();
+    })
     .then(data => {
+        if (!data) return;
 
         if (data.status === "ok") {
+            showToast("Đặt hàng thành công");
 
-            alert("Đặt hàng thành công");
-
-            loadCart();
+            setTimeout(() => {
+                window.location.href = "/orders";
+            }, 1000);
 
             return;
         }
 
-        alert(data.message);
+        showToast(data.message);
     });
 }
+
+/* ================= CHECKOUT MODAL ================= */
+
+function openCheckout(itemId) {
+    currentOrderItemId = itemId;
+
+    fetch("/api/profile")
+        .then(res => {
+            if (res.status === 401) {
+                window.location.href = "/login";
+                return null;
+            }
+
+            return res.json();
+        })
+        .then(data => {
+            if (!data) return;
+
+            const nameInput = document.getElementById("customerName");
+            const phoneInput = document.getElementById("customerPhone");
+            const addressInput = document.getElementById("customerAddress");
+
+            if (nameInput) nameInput.value = data.full_name || "";
+            if (phoneInput) phoneInput.value = data.phone || "";
+            if (addressInput) addressInput.value = data.address || "";
+
+            const checkoutModal = document.getElementById("checkoutModal");
+            if (checkoutModal) checkoutModal.style.display = "block";
+        });
+}
+
+function closeCheckout() {
+    const checkoutModal = document.getElementById("checkoutModal");
+    if (checkoutModal) checkoutModal.style.display = "none";
+}
+
+function submitOrder() {
+    if (!currentOrderItemId) {
+        showToast("Không tìm thấy sản phẩm cần đặt");
+        return;
+    }
+
+    fetch("/cart/checkout", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            item_id: currentOrderItemId,
+            quantity: 1
+        })
+    })
+    .then(res => {
+        if (res.status === 401) {
+            window.location.href = "/login";
+            return null;
+        }
+
+        return res.json();
+    })
+    .then(data => {
+        if (!data) return;
+
+        if (data.status === "ok") {
+            showToast("Đặt hàng thành công");
+
+            setTimeout(() => {
+                window.location.href = "/orders";
+            }, 1000);
+
+            return;
+        }
+
+        showToast(data.message);
+    });
+}
+
+function buyNow(id) {
+    openCheckout(id);
+}
+
+/* ================= AUTH ================= */
+
+function register() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const confirmInput = document.getElementById("confirmPassword");
+    const confirm = confirmInput ? confirmInput.value.trim() : password;
+    const errorBox = document.getElementById("register-error");
+
+    if (errorBox) errorBox.innerText = "";
+
+    if (!username || !password || !confirm) {
+        if (errorBox) errorBox.innerText = "Vui lòng nhập đầy đủ thông tin";
+        else alert("Vui lòng nhập đầy đủ thông tin");
+        return;
+    }
+
+    if (password.length < 6) {
+        if (errorBox) errorBox.innerText = "Mật khẩu phải có ít nhất 6 ký tự";
+        else alert("Mật khẩu phải có ít nhất 6 ký tự");
+        return;
+    }
+
+    if (password !== confirm) {
+        if (errorBox) errorBox.innerText = "Mật khẩu nhập lại không khớp";
+        else alert("Mật khẩu nhập lại không khớp");
+        return;
+    }
+
+    fetch("/api/register", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            username,
+            password
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "error") {
+            if (errorBox) errorBox.innerText = data.message;
+            else alert(data.message);
+            return;
+        }
+
+        window.location.href = "/profile";
+    });
+}
+
+function login() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const errorBox = document.getElementById("login-error");
+
+    if (errorBox) errorBox.innerText = "";
+
+    if (!username || !password) {
+        if (errorBox) errorBox.innerText = "Vui lòng nhập tài khoản và mật khẩu";
+        else alert("Vui lòng nhập tài khoản và mật khẩu");
+        return;
+    }
+
+    fetch("/api/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            username,
+            password
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status !== "ok") {
+            if (errorBox) errorBox.innerText = data.message;
+            else alert(data.message);
+            return;
+        }
+
+        if (data.profile_completed) {
+            window.location.href = "/";
+        } else {
+            window.location.href = "/profile";
+        }
+    });
+}
+
+function logout() {
+    window.location.href = "/logout";
+}
+
+/* ================= PROFILE ================= */
+
+function loadProfile() {
+    const fullName = document.getElementById("fullName");
+    const phone = document.getElementById("phone");
+    const address = document.getElementById("address");
+
+    if (!fullName || !phone || !address) return;
+
+    fetch("/api/profile")
+        .then(res => {
+            if (res.status === 401) {
+                window.location.href = "/login";
+                return null;
+            }
+
+            return res.json();
+        })
+        .then(data => {
+            if (!data) return;
+
+            fullName.value = data.full_name || "";
+            phone.value = data.phone || "";
+            address.value = data.address || "";
+        });
+}
+
+function saveProfile() {
+    const full_name = document.getElementById("fullName").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const address = document.getElementById("address").value.trim();
+    const errorBox = document.getElementById("profile-error");
+
+    if (errorBox) errorBox.innerText = "";
+
+    if (!full_name || !phone || !address) {
+        if (errorBox) errorBox.innerText = "Vui lòng nhập đầy đủ thông tin";
+        else alert("Vui lòng nhập đầy đủ thông tin");
+        return;
+    }
+
+    const phoneRegex = /^0\d{9}$/;
+
+    if (!phoneRegex.test(phone)) {
+        if (errorBox) errorBox.innerText = "Số điện thoại không hợp lệ";
+        else alert("Số điện thoại không hợp lệ");
+        return;
+    }
+
+    fetch("/api/profile/update", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            full_name,
+            phone,
+            address
+        })
+    })
+    .then(res => {
+        if (res.status === 401) {
+            window.location.href = "/login";
+            return null;
+        }
+
+        return res.json();
+    })
+    .then(data => {
+        if (!data) return;
+
+        if (data.status === "ok") {
+            showToast("Cập nhật thành công");
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 800);
+        } else {
+            if (errorBox) errorBox.innerText = data.message;
+            else alert(data.message);
+        }
+    });
+}
+
+/* ================= ORDERS ================= */
+
+function loadOrders() {
+    const box = document.getElementById("orders");
+    if (!box) return;
+
+    fetch("/api/orders")
+        .then(res => res.json())
+        .then(items => {
+            if (items.length === 0) {
+                box.innerHTML = `
+                    <div class="empty-cart">
+                        Bạn chưa có đơn hàng nào
+                    </div>
+                `;
+                return;
+            }
+
+            let html = "";
+
+            items.forEach(o => {
+                html += `
+                    <div class="order-item">
+                        <img src="${o.image}" onerror="this.src='https://picsum.photos/300'">
+
+                        <div class="order-info">
+                            <h3>Đơn hàng #${o.order_id}</h3>
+                            <p>Ngày đặt: ${o.order_time}</p>
+                            <p>Sản phẩm: ${o.product_name}</p>
+                            <p>Số lượng: ${o.quantity}</p>
+                            <p>Giá: ${Number(o.price).toLocaleString()}₫</p>
+                            <b>Tổng đơn: ${Number(o.total_price).toLocaleString()}₫</b>
+                        </div>
+                    </div>
+                `;
+            });
+
+            box.innerHTML = html;
+        });
+}
+/* ================= SLIDER ================= */
+
+function showSlide(index) {
+    const banner = document.getElementById("banner");
+
+    if (!banner) return;
+
+    if (index >= images.length) {
+        currentIndex = 0;
+    } else if (index < 0) {
+        currentIndex = images.length - 1;
+    } else {
+        currentIndex = index;
+    }
+
+    banner.src = images[currentIndex];
+}
+
+function nextSlide() {
+    showSlide(currentIndex + 1);
+}
+
+function prevSlide() {
+    showSlide(currentIndex - 1);
+}
+
+/* ================= TOAST ================= */
+
+function showToast(message) {
+    const toast = document.getElementById("toast");
+    const msg = document.getElementById("toast-msg");
+
+    if (!toast || !msg) {
+        alert(message);
+        return;
+    }
+
+    msg.innerText = message;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2500);
+}
+
+function closeToast() {
+    const toast = document.getElementById("toast");
+    if (toast) toast.classList.remove("show");
+}
+
+/* ================= INIT ================= */
+
+window.addEventListener("load", function () {
+
+    if (window.location.pathname === "/recommend") {
+        loadRecommend();
+    }
+    else {
+        loadProducts();
+    }
+
+    loadCart();
+    loadProfile();
+    loadOrders();
+
+    showSlide(0);
+
+    const input = document.getElementById("searchInput");
+
+    if (input) {
+        input.addEventListener("keydown", function (e) {
+
+            if (e.key === "Enter") {
+                searchProducts();
+            }
+
+        });
+    }
+
+    setInterval(nextSlide, 3000);
+
+});
