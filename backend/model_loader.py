@@ -3,15 +3,9 @@ import pickle
 import torch
 import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence
-
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
-
 MODEL_DIR = os.path.join(PROJECT_ROOT, "model")
-
-
 class SimpleLSTM(nn.Module):
     def __init__(self, vocab_size, embed_dim=64, hidden_dim=128):
         super().__init__()
@@ -92,7 +86,7 @@ model.load_state_dict(state_dict)
 model.eval()
 
 
-def predict_next_items(sequence_item_ids, top_k=20):
+def predict_next_items(sequence_item_ids, top_k=5):
     """
     sequence_item_ids: list item_id gốc từ database / events
     return: list item_id gốc được model gợi ý
@@ -106,6 +100,7 @@ def predict_next_items(sequence_item_ids, top_k=20):
     for item_id in sequence_item_ids:
         if item_id in item2idx:
             seq_idx.append(item2idx[item_id])
+    print("seq_idx =", seq_idx)
 
     if not seq_idx:
         return []

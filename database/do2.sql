@@ -220,3 +220,8 @@ FROM events e
 JOIN products_real p
 ON e.item_id = p.item_id
 ORDER BY e.event_time DESC;
+use da2
+go
+SELECT TOP 50 *
+FROM events
+ORDER BY event_time DESC;

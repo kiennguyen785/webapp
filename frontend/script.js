@@ -65,22 +65,16 @@ function loadCategory(category) {
         });
 }
 function loadRecommend() {
-
     const box = document.getElementById("products");
-
     if (!box) return;
 
     fetch("/api/recommend")
-
         .then(res => res.json())
-
         .then(data => {
+            const empty = document.getElementById("emptyRecommend");
 
-            if (data.length === 0) {
-
+            if (!data || data.length === 0) {
                 box.innerHTML = "";
-
-                const empty = document.getElementById("emptyRecommend");
 
                 if (empty) {
                     empty.style.display = "block";
@@ -89,14 +83,11 @@ function loadRecommend() {
                 return;
             }
 
-            const empty = document.getElementById("emptyRecommend");
-
             if (empty) {
                 empty.style.display = "none";
             }
 
             allProducts = data;
-
             renderProducts(data);
         });
 }
@@ -443,8 +434,17 @@ function closeCheckout() {
 }
 
 function submitOrder() {
+    const name = document.getElementById("customerName").value.trim();
+    const phone = document.getElementById("customerPhone").value.trim();
+    const address = document.getElementById("customerAddress").value.trim();
+
+    if (!name || !phone || !address) {
+        alert("Vui lòng nhập đầy đủ thông tin đặt hàng");
+        return;
+    }
+
     if (!currentOrderItemId) {
-        showToast("Không tìm thấy sản phẩm cần đặt");
+        alert("Không tìm thấy sản phẩm cần đặt");
         return;
     }
 
@@ -470,16 +470,16 @@ function submitOrder() {
         if (!data) return;
 
         if (data.status === "ok") {
-            showToast("Đặt hàng thành công");
-
-            setTimeout(() => {
-                window.location.href = "/orders";
-            }, 1000);
-
+            alert("Đặt hàng thành công");
+            window.location.href = "/orders";
             return;
         }
 
-        showToast(data.message);
+        alert(data.message);
+    })
+    .catch(err => {
+        console.log("Lỗi submitOrder:", err);
+        alert("Lỗi xác nhận đặt hàng");
     });
 }
 
@@ -754,8 +754,7 @@ window.addEventListener("load", function () {
 
     if (window.location.pathname === "/recommend") {
         loadRecommend();
-    }
-    else {
+    } else {
         loadProducts();
     }
 
@@ -769,14 +768,11 @@ window.addEventListener("load", function () {
 
     if (input) {
         input.addEventListener("keydown", function (e) {
-
             if (e.key === "Enter") {
                 searchProducts();
             }
-
         });
     }
 
     setInterval(nextSlide, 3000);
-
 });

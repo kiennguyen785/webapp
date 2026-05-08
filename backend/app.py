@@ -51,12 +51,213 @@ def cart_page():
         role=session.get("role")
     )
 
+@app.route("/cart/checkout", methods=["POST"])
+def checkout_cart():
+    if "user_id" not in session:
+        return jsonify({
+            "status": "error",
+            "message": "Bạn chưa đăng nhập"
+        }), 401
 
+    data = request.get_json() or {}
+
+    user_id = session["user_id"]
+    item_id = data.get("item_id")
+    quantity = int(data.get("quantity", 1))
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        items = []
+
+        if item_id:
+            cursor.execute("""
+                SELECT item_id, price, quantity
+                FROM products_real
+                WHERE item_id = ?
+            """, item_id)
+
+            row = cursor.fetchone()
+
+            if row is None:
+                return jsonify({
+                    "status": "error",
+                    "message": "Không tìm thấy sản phẩm"
+                })
+
+            stock = int(row[2])
+
+            if stock < quantity:
+                return jsonify({
+                    "status": "error",
+                    "message": "Số lượng trong kho không đủ"
+                })
+
+            items.append({
+                "item_id": row[0],
+                "quantity": quantity,
+                "price": int(row[1])
+            })
+
+        else:
+            cursor.execute("""
+                SELECT
+                    c.item_id,
+                    c.quantity,
+                    p.price,
+                    p.quantity
+                FROM cart c
+                JOIN products_real p
+                    ON c.item_id = p.item_id
+                WHERE c.user_id = ?
+            """, user_id)
+
+            rows = cursor.fetchall()
+
+            if len(rows) == 0:
+                return jsonify({
+                    "status": "error",
+                    "message": "Giỏ hàng trống"
+                })
+
+            for row in rows:
+                cart_quantity = int(row[1])
+                stock = int(row[3])
+
+                if cart_quantity > stock:
+                    return jsonify({
+                        "status": "error",
+                        "message": "Số lượng trong kho không đủ"
+                    })
+
+                items.append({
+                    "item_id": row[0],
+                    "quantity": cart_quantity,
+                    "price": int(row[2])
+                })
+
+        total_price = 0
+
+        for item in items:
+            total_price += item["quantity"] * item["price"]
+
+        cursor.execute("""
+            INSERT INTO orders (
+                user_id,
+                total_price
+            )
+            OUTPUT INSERTED.order_id
+            VALUES (?, ?)
+        """, user_id, total_price)
+
+        order_id = cursor.fetchone()[0]
+
+        for item in items:
+            cursor.execute("""
+                INSERT INTO order_items (
+                    order_id,
+                    item_id,
+                    quantity,
+                    price
+                )
+                VALUES (?, ?, ?, ?)
+            """, order_id, item["item_id"], item["quantity"], item["price"])
+
+            cursor.execute("""
+                UPDATE products_real
+                SET quantity = quantity - ?
+                WHERE item_id = ?
+            """, item["quantity"], item["item_id"])
+
+            cursor.execute("""
+                INSERT INTO events (
+                    user_id,
+                    item_id,
+                    event_type
+                )
+                VALUES (?, ?, ?)
+            """, user_id, item["item_id"], "purchase")
+
+        if not item_id:
+            cursor.execute("""
+                DELETE FROM cart
+                WHERE user_id = ?
+            """, user_id)
+
+        conn.commit()
+
+        return jsonify({
+            "status": "ok",
+            "message": "Đặt hàng thành công",
+            "order_id": order_id
+        })
+
+    except Exception as e:
+        conn.rollback()
+        print("LỖI CHECKOUT:", e)
+
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        })
+
+    finally:
+        conn.close()
 @app.route("/orders")
 def orders_page():
-    return render_template("orders.html")
+    return render_template(
+        "orders.html",
+        username=session.get("username"),
+        role=session.get("role")
+    )
+@app.route("/api/orders")
+def get_orders():
+    if "user_id" not in session:
+        return jsonify([]), 401
 
+    user_id = session["user_id"]
 
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            o.order_id,
+            o.total_price,
+            o.order_time,
+            oi.item_id,
+            p.product_name,
+            oi.quantity,
+            oi.price,
+            p.image_url
+        FROM orders o
+        JOIN order_items oi
+            ON o.order_id = oi.order_id
+        JOIN products_real p
+            ON oi.item_id = p.item_id
+        WHERE o.user_id = ?
+        ORDER BY o.order_time DESC
+    """, user_id)
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    data = []
+
+    for row in rows:
+        data.append({
+            "order_id": row[0],
+            "total_price": row[1],
+            "order_time": str(row[2]),
+            "item_id": row[3],
+            "product_name": row[4],
+            "quantity": row[5],
+            "price": row[6],
+            "image": row[7]
+        })
+
+    return jsonify(data)
 @app.route("/product/<int:item_id>")
 def product_detail_page(item_id):
     return render_template("product_detail.html")
@@ -424,38 +625,93 @@ def add_to_cart():
 
     user_id = session["user_id"]
     item_id = data.get("item_id")
-    quantity = data.get("quantity", 1)
+    quantity = int(data.get("quantity", 1))
+
+    if not item_id:
+        return jsonify({
+            "status": "error",
+            "message": "Thiếu item_id"
+        })
 
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT cart_id
-        FROM cart
-        WHERE user_id = ? AND item_id = ?
-    """, user_id, item_id)
-
-    row = cursor.fetchone()
-
-    if row:
+    try:
         cursor.execute("""
-            UPDATE cart
-            SET quantity = quantity + ?
+            SELECT quantity
+            FROM products_real
+            WHERE item_id = ?
+        """, item_id)
+
+        product = cursor.fetchone()
+
+        if product is None:
+            return jsonify({
+                "status": "error",
+                "message": "Không tìm thấy sản phẩm"
+            })
+
+        stock = int(product[0])
+
+        if stock <= 0:
+            return jsonify({
+                "status": "error",
+                "message": "Sản phẩm đã hết hàng"
+            })
+
+        cursor.execute("""
+            SELECT cart_id, quantity
+            FROM cart
             WHERE user_id = ? AND item_id = ?
-        """, quantity, user_id, item_id)
-    else:
-        cursor.execute("""
-            INSERT INTO cart (user_id, item_id, quantity)
-            VALUES (?, ?, ?)
-        """, user_id, item_id, quantity)
+        """, user_id, item_id)
 
-    conn.commit()
-    conn.close()
+        row = cursor.fetchone()
 
-    return jsonify({
-        "status": "ok",
-        "message": "Đã thêm vào giỏ hàng"
-    })
+        if row:
+            new_quantity = int(row[1]) + quantity
+
+            if new_quantity > stock:
+                return jsonify({
+                    "status": "error",
+                    "message": "Số lượng trong kho không đủ"
+                })
+
+            cursor.execute("""
+                UPDATE cart
+                SET quantity = ?
+                WHERE user_id = ? AND item_id = ?
+            """, new_quantity, user_id, item_id)
+
+        else:
+            if quantity > stock:
+                return jsonify({
+                    "status": "error",
+                    "message": "Số lượng trong kho không đủ"
+                })
+
+            cursor.execute("""
+                INSERT INTO cart (user_id, item_id, quantity)
+                VALUES (?, ?, ?)
+            """, user_id, item_id, quantity)
+
+        conn.commit()
+
+        return jsonify({
+            "status": "ok",
+            "message": "Đã thêm vào giỏ hàng"
+        })
+
+    except Exception as e:
+        conn.rollback()
+        print("LỖI ADD CART:", e)
+
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        })
+
+    finally:
+        conn.close()
 @app.route("/api/cart")
 def get_cart():
     if "user_id" not in session:
@@ -579,194 +835,7 @@ def remove_cart_item():
     conn.close()
 
     return jsonify({"status": "ok"})
-@app.route("/cart/checkout", methods=["POST"])
-def checkout_cart():
-    if "user_id" not in session:
-        return jsonify({
-            "status": "error",
-            "message": "Bạn chưa đăng nhập"
-        }), 401
 
-    data = request.get_json() or {}
-
-    user_id = session["user_id"]
-    item_id = data.get("item_id")
-    quantity = data.get("quantity", 1)
-
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    # Đặt trực tiếp từ home / product detail / recommend
-    if item_id:
-        cursor.execute("""
-            SELECT item_id, price, quantity
-            FROM products_real
-            WHERE item_id = ?
-        """, item_id)
-
-        row = cursor.fetchone()
-
-        if row is None:
-            conn.close()
-            return jsonify({
-                "status": "error",
-                "message": "Không tìm thấy sản phẩm"
-            })
-
-        if quantity > row[2]:
-            conn.close()
-            return jsonify({
-                "status": "error",
-                "message": "Số lượng trong kho không đủ"
-            })
-
-        items = [{
-            "item_id": row[0],
-            "quantity": quantity,
-            "price": row[1],
-            "stock": row[2]
-        }]
-
-    # Đặt hàng từ giỏ hàng
-    else:
-        cursor.execute("""
-            SELECT
-                c.item_id,
-                c.quantity,
-                p.price,
-                p.quantity
-            FROM cart c
-            JOIN products_real p ON c.item_id = p.item_id
-            WHERE c.user_id = ?
-        """, user_id)
-
-        rows = cursor.fetchall()
-
-        if len(rows) == 0:
-            conn.close()
-            return jsonify({
-                "status": "error",
-                "message": "Giỏ hàng trống"
-            })
-
-        items = []
-
-        for row in rows:
-            items.append({
-                "item_id": row[0],
-                "quantity": row[1],
-                "price": row[2],
-                "stock": row[3]
-            })
-
-    total_price = 0
-
-    for item in items:
-        if item["quantity"] > item["stock"]:
-            conn.close()
-            return jsonify({
-                "status": "error",
-                "message": "Số lượng trong kho không đủ"
-            })
-
-        total_price += item["quantity"] * item["price"]
-
-    cursor.execute("""
-        INSERT INTO orders (
-            user_id,
-            total_price
-        )
-        OUTPUT INSERTED.order_id
-        VALUES (?, ?)
-    """, user_id, total_price)
-
-    order_id = cursor.fetchone()[0]
-
-    for item in items:
-        cursor.execute("""
-            INSERT INTO order_items (
-                order_id,
-                item_id,
-                quantity,
-                price
-            )
-            VALUES (?, ?, ?, ?)
-        """, order_id, item["item_id"], item["quantity"], item["price"])
-
-        cursor.execute("""
-            UPDATE products_real
-            SET quantity = quantity - ?
-            WHERE item_id = ?
-        """, item["quantity"], item["item_id"])
-
-        cursor.execute("""
-            INSERT INTO events (
-                user_id,
-                item_id,
-                event_type
-            )
-            VALUES (?, ?, ?)
-        """, user_id, item["item_id"], "purchase")
-
-    # Nếu checkout từ cart thì xoá cart của đúng user
-    if not item_id:
-        cursor.execute("""
-            DELETE FROM cart
-            WHERE user_id = ?
-        """, user_id)
-
-    conn.commit()
-    conn.close()
-
-    return jsonify({
-        "status": "ok",
-        "message": "Đặt hàng thành công"
-    })
-@app.route("/api/orders")
-def get_orders():
-    if "user_id" not in session:
-        return jsonify([])
-
-    user_id = session["user_id"]
-
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT
-            o.order_id,
-            o.total_price,
-            o.order_time,
-            oi.item_id,
-            p.product_name,
-            oi.quantity,
-            oi.price,
-            p.image_url
-        FROM orders o
-        JOIN order_items oi ON o.order_id = oi.order_id
-        JOIN products_real p ON oi.item_id = p.item_id
-        WHERE o.user_id = ?
-        ORDER BY o.order_time DESC
-    """, user_id)
-
-    rows = cursor.fetchall()
-    conn.close()
-
-    data = []
-
-    for row in rows:
-        data.append({
-            "order_id": row[0],
-            "total_price": row[1],
-            "order_time": str(row[2]),
-            "item_id": row[3],
-            "product_name": row[4],
-            "quantity": row[5],
-            "price": row[6],
-            "image": row[7]
-        })
-
-    return jsonify(data)
 @app.route("/logout")
 def logout():
     session.clear()
