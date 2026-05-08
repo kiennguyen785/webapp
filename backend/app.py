@@ -314,7 +314,7 @@ def recommend_api():
     data = get_recommend_products(
         cursor,
         session["user_id"],
-        top_k=5
+        top_k=25
     )
 
     conn.close()
