@@ -119,11 +119,48 @@
         </div>
     </div>
 </div>
-<div id="toast" class="toast">
-    <span id="toast-msg">Thành công</span>
-    <span class="toast-close" onclick="closeToast()">×</span>
+<div id="messageModal" class="message-modal">
+    <div id="messageBox" class="message-box">
+        <span class="message-close" onclick="closeMessage()">×</span>
+
+        <div class="message-icon">✓</div>
+
+        <div id="messageText" class="message-text">
+            Thành công
+        </div>
+
+        <button onclick="closeMessage()" class="message-ok">
+            OK
+        </button>
+    </div>
 </div>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
+<footer class="footer">
+    <div class="footer-content">
+        <div>
+            <h3>Mini Shop</h3>
+            <p>Website bán hàng tích hợp hệ thống gợi ý sản phẩm theo hành vi người dùng.</p>
+        </div>
 
+        <div>
+            <h4>Liên kết</h4>
+            <a href="/">Trang chủ</a>
+            <a href="/products">Sản phẩm</a>
+            <a href="/recommend">Gợi ý</a>
+            <a href="/cart">Giỏ hàng</a>
+        </div>
+
+        <div>
+            <h4>Hỗ trợ</h4>
+            <p>Hotline: 19000001913 </p>
+            <p>Email: support@minishop.vn</p>
+            <p>Địa chỉ: Hưng Yên, Việt Nam</p>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        © 2026 Mini Shop. Đồ án Web App Gợi ý sản phẩm.
+    </div>
+</footer>
 </body>
 </html>

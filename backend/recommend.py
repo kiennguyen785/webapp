@@ -18,7 +18,7 @@ def get_user_sequence(cursor, user_id, limit=20):
     return sequence
 
 
-def get_recommend_products(cursor, user_id, top_k=25):
+def get_recommend_products(cursor, user_id, top_k=20):
     sequence = get_user_sequence(cursor, user_id, limit=20)
 
     print("USER SEQUENCE =", sequence)
@@ -26,7 +26,7 @@ def get_recommend_products(cursor, user_id, top_k=25):
     if not sequence:
         return []
 
-    recommended_item_ids = predict_next_items(sequence, top_k=1000)
+    recommended_item_ids = predict_next_items(sequence, top_k=30)
 
     print("MODEL RECOMMEND IDS =", recommended_item_ids[:20])
 

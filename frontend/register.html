@@ -13,11 +13,25 @@
     <input id="password" type="password" placeholder="Password">
     <input id="confirmPassword" type="password" placeholder="Confirm Password">
 
-    <button onclick="register()">Đâng ký</button>
+    <button onclick="register()">Đăng ký</button>
 
     <p>Bạn đã có tài khoản ? <a href="/login">Đăng nhập</a></p>
 </div>
+<div id="messageModal" class="message-modal">
+    <div id="messageBox" class="message-box">
+        <span class="message-close" onclick="closeMessage()">×</span>
 
+        <div class="message-icon">✓</div>
+
+        <div id="messageText" class="message-text">
+            Thành công
+        </div>
+
+        <button onclick="closeMessage()" class="message-ok">
+            OK
+        </button>
+    </div>
+</div>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>

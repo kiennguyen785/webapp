@@ -96,7 +96,7 @@ function openProduct(id) {
         .then(res => res.json())
         .then(p => {
             if (p.status === "error") {
-                showToast("Không tìm thấy sản phẩm");
+                showMessage("Không tìm thấy sản phẩm");
                 return;
             }
 
@@ -218,12 +218,12 @@ function addToCart(id) {
         if (!data) return;
 
         if (data.status === "error") {
-            showToast(data.message);
+            showMessage(data.message);
             return;
         }
 
         saveEvent(id, "add_to_cart");
-        showToast("Đã thêm vào giỏ hàng");
+        showMessage("Đã thêm vào giỏ hàng");
     });
 }
 
@@ -321,10 +321,14 @@ function increaseQty(cartId) {
     .then(res => res.json())
     .then(data => {
         if (data.status === "ok") {
-            loadCart();
-        } else {
-            showToast(data.message);
-        }
+        showMessage(
+            "Đặt hàng thành công",
+            "success",
+            "/orders"
+        );
+
+        return;
+    }
     });
 }
 
@@ -342,7 +346,7 @@ function decreaseQty(cartId) {
         if (data.status === "ok") {
             loadCart();
         } else {
-            showToast(data.message);
+            showMessage(data.message);
         }
     });
 }
@@ -360,7 +364,7 @@ function removeCart(cartId) {
         if (data.status === "ok") {
             loadCart();
         } else {
-            showToast(data.message);
+            showMessage(data.message);
         }
     });
 }
@@ -385,7 +389,7 @@ function checkoutCart() {
         if (!data) return;
 
         if (data.status === "ok") {
-            showToast("Đặt hàng thành công");
+            showMessage("Đặt hàng thành công");
 
             setTimeout(() => {
                 window.location.href = "/orders";
@@ -394,7 +398,7 @@ function checkoutCart() {
             return;
         }
 
-        showToast(data.message);
+        showMessage(data.message);
     });
 }
 
@@ -439,12 +443,12 @@ function submitOrder() {
     const address = document.getElementById("customerAddress").value.trim();
 
     if (!name || !phone || !address) {
-        alert("Vui lòng nhập đầy đủ thông tin đặt hàng");
+        showMessage("Vui lòng nhập đầy đủ thông tin đặt hàng");
         return;
     }
 
     if (!currentOrderItemId) {
-        alert("Không tìm thấy sản phẩm cần đặt");
+        showMessage("Không tìm thấy sản phẩm cần đặt");
         return;
     }
 
@@ -470,16 +474,16 @@ function submitOrder() {
         if (!data) return;
 
         if (data.status === "ok") {
-            alert("Đặt hàng thành công");
+            showMessage("Đặt hàng thành công");
             window.location.href = "/orders";
             return;
         }
 
-        alert(data.message);
+        showMessage(data.message);
     })
     .catch(err => {
         console.log("Lỗi submitOrder:", err);
-        alert("Lỗi xác nhận đặt hàng");
+        showMessage("Lỗi xác nhận đặt hàng");
     });
 }
 
@@ -500,19 +504,19 @@ function register() {
 
     if (!username || !password || !confirm) {
         if (errorBox) errorBox.innerText = "Vui lòng nhập đầy đủ thông tin";
-        else alert("Vui lòng nhập đầy đủ thông tin");
+        else showMessage("Vui lòng nhập đầy đủ thông tin");
         return;
     }
 
     if (password.length < 6) {
         if (errorBox) errorBox.innerText = "Mật khẩu phải có ít nhất 6 ký tự";
-        else alert("Mật khẩu phải có ít nhất 6 ký tự");
+        else showMessage("Mật khẩu phải có ít nhất 6 ký tự");
         return;
     }
 
     if (password !== confirm) {
         if (errorBox) errorBox.innerText = "Mật khẩu nhập lại không khớp";
-        else alert("Mật khẩu nhập lại không khớp");
+        else showMessage("Mật khẩu nhập lại không khớp");
         return;
     }
 
@@ -528,7 +532,7 @@ function register() {
     .then(data => {
         if (data.status === "error") {
             if (errorBox) errorBox.innerText = data.message;
-            else alert(data.message);
+            else showMessage(data.message);
             return;
         }
 
@@ -545,7 +549,7 @@ function login() {
 
     if (!username || !password) {
         if (errorBox) errorBox.innerText = "Vui lòng nhập tài khoản và mật khẩu";
-        else alert("Vui lòng nhập tài khoản và mật khẩu");
+        else showMessage("Vui lòng nhập tài khoản và mật khẩu");
         return;
     }
 
@@ -561,7 +565,7 @@ function login() {
     .then(data => {
         if (data.status !== "ok") {
             if (errorBox) errorBox.innerText = data.message;
-            else alert(data.message);
+            else showMessage(data.message);
             return;
         }
 
@@ -614,7 +618,7 @@ function saveProfile() {
 
     if (!full_name || !phone || !address) {
         if (errorBox) errorBox.innerText = "Vui lòng nhập đầy đủ thông tin";
-        else alert("Vui lòng nhập đầy đủ thông tin");
+        else showMessage("Vui lòng nhập đầy đủ thông tin");
         return;
     }
 
@@ -622,7 +626,7 @@ function saveProfile() {
 
     if (!phoneRegex.test(phone)) {
         if (errorBox) errorBox.innerText = "Số điện thoại không hợp lệ";
-        else alert("Số điện thoại không hợp lệ");
+        else showMessage("Số điện thoại không hợp lệ");
         return;
     }
 
@@ -647,13 +651,13 @@ function saveProfile() {
         if (!data) return;
 
         if (data.status === "ok") {
-            showToast("Cập nhật thành công");
+            showMessage("Cập nhật thành công");
             setTimeout(() => {
                 window.location.href = "/";
             }, 800);
         } else {
             if (errorBox) errorBox.innerText = data.message;
-            else alert(data.message);
+            else showMessage(data.message);
         }
     });
 }
@@ -726,12 +730,12 @@ function prevSlide() {
 
 /* ================= TOAST ================= */
 
-function showToast(message) {
+function showMessage(message) {
     const toast = document.getElementById("toast");
     const msg = document.getElementById("toast-msg");
 
     if (!toast || !msg) {
-        alert(message);
+        showMessage(message);
         return;
     }
 
@@ -776,3 +780,38 @@ window.addEventListener("load", function () {
 
     setInterval(nextSlide, 3000);
 });
+
+function showMessage(message, type = "success", redirectUrl = null) {
+    const modal = document.getElementById("messageModal");
+    const box = document.getElementById("messageBox");
+    const text = document.getElementById("messageText");
+
+    if (!modal || !box || !text) {
+        alert(message);
+        if (redirectUrl) window.location.href = redirectUrl;
+        return;
+    }
+
+    text.innerText = message;
+
+    box.classList.remove("message-success", "message-error");
+    box.classList.add(type === "error" ? "message-error" : "message-success");
+
+    modal.style.display = "flex";
+    modal.dataset.redirect = redirectUrl || "";
+}
+
+function closeMessage() {
+    const modal = document.getElementById("messageModal");
+
+    if (!modal) return;
+
+    const redirectUrl = modal.dataset.redirect || "";
+
+    modal.style.display = "none";
+    modal.dataset.redirect = "";
+
+    if (redirectUrl) {
+        window.location.href = redirectUrl;
+    }
+}

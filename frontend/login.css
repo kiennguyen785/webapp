@@ -94,3 +94,71 @@ body {
 .close-btn:hover {
     color: #ee4d2d;
 }
+.message-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+}
+
+.message-box {
+    width: 380px;
+    max-width: 90%;
+    background: white;
+    border-radius: 18px;
+    padding: 34px 28px 26px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.25);
+}
+
+.message-close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #777;
+}
+
+.message-close:hover {
+    color: #ee4d2d;
+}
+
+.message-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: #4caf50;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.message-error .message-icon {
+    background: #f44336;
+}
+
+.message-text {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 22px;
+}
+
+.message-ok {
+    min-width: 100px;
+    height: 42px;
+    border: none;
+    border-radius: 10px;
+    background: #ee4d2d;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}

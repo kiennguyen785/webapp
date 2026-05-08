@@ -14,7 +14,21 @@
 
     <p>Chưa có tài khoản? <a href="/register">Đăng ký</a></p>
 </div>
+<div id="messageModal" class="message-modal">
+    <div id="messageBox" class="message-box">
+        <span class="message-close" onclick="closeMessage()">×</span>
 
+        <div class="message-icon">✓</div>
+
+        <div id="messageText" class="message-text">
+            Thành công
+        </div>
+
+        <button onclick="closeMessage()" class="message-ok">
+            OK
+        </button>
+    </div>
+</div>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>

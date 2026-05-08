@@ -1472,3 +1472,133 @@ nav a:hover {
     color: #666;
     font-size: 18px;
 }
+.message-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+}
+
+.message-box {
+    width: 380px;
+    max-width: 90%;
+    background: white;
+    border-radius: 18px;
+    padding: 34px 28px 26px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.25);
+    animation: popBox 0.2s ease;
+}
+
+@keyframes popBox {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.message-close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #777;
+}
+
+.message-close:hover {
+    color: #ee4d2d;
+}
+
+.message-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: #4caf50;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.message-error .message-icon {
+    background: #f44336;
+}
+
+.message-text {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 22px;
+    line-height: 1.5;
+}
+
+.message-ok {
+    min-width: 100px;
+    height: 42px;
+    border: none;
+    border-radius: 10px;
+    background: #ee4d2d;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.message-ok:hover {
+    background: #d8432a;
+}
+.footer {
+    margin-top: 50px;
+    background: #222;
+    color: white;
+}
+
+.footer-content {
+    max-width: 1300px;
+    margin: auto;
+    padding: 36px 24px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.5fr;
+    gap: 30px;
+}
+
+.footer h3,
+.footer h4 {
+    margin-top: 0;
+    color: #ff7043;
+}
+
+.footer p {
+    color: #ddd;
+    line-height: 1.6;
+}
+
+.footer a {
+    display: block;
+    color: #ddd;
+    text-decoration: none;
+    margin: 8px 0;
+}
+
+.footer a:hover {
+    color: #ff7043;
+}
+
+.footer-bottom {
+    border-top: 1px solid #444;
+    text-align: center;
+    padding: 14px;
+    color: #bbb;
+    font-size: 14px;
+}
