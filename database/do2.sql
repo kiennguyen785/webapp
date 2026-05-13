@@ -225,6 +225,7 @@ go
 SELECT TOP 50 *
 FROM events
 ORDER BY event_time DESC;
+
 use da2
 go
 UPDATE products_real
@@ -268,3 +269,155 @@ SET image_url =
 
         ELSE 'https://loremflickr.com/600/600/product?lock=' + CAST(item_id AS NVARCHAR)
     END;
+
+/* =========================================
+   ROLE + SELLER
+========================================= */
+
+ALTER TABLE users
+ADD avatar_url NVARCHAR(500) NULL;
+
+UPDATE users
+SET role = 'user'
+WHERE role IS NULL;
+
+
+
+
+
+/* =========================================
+   SELLER CHO SẢN PHẨM
+========================================= */
+
+ALTER TABLE products_real
+ADD seller_id INT NULL;
+
+ALTER TABLE products_real
+ADD CONSTRAINT FK_products_real_seller
+FOREIGN KEY (seller_id)
+REFERENCES users(user_id);
+
+
+
+
+
+/* =========================================
+   BẢNG VARIANT
+========================================= */
+
+CREATE TABLE product_variants (
+
+    variant_id INT IDENTITY(1,1) PRIMARY KEY,
+
+    item_id INT NOT NULL,
+
+    color NVARCHAR(50) NULL,
+
+    size NVARCHAR(50) NULL,
+
+    storage NVARCHAR(50) NULL,
+
+    weight NVARCHAR(50) NULL,
+
+    stock INT DEFAULT 0,
+
+    price INT,
+
+    image_url NVARCHAR(500),
+
+    FOREIGN KEY (item_id)
+    REFERENCES products_real(item_id)
+);
+
+
+
+
+
+/* =========================================
+   THÔNG SỐ CHI TIẾT
+========================================= */
+
+CREATE TABLE product_attributes (
+
+    attribute_id INT IDENTITY(1,1) PRIMARY KEY,
+
+    item_id INT NOT NULL,
+
+    attribute_name NVARCHAR(100),
+
+    attribute_value NVARCHAR(500),
+
+    FOREIGN KEY (item_id)
+    REFERENCES products_real(item_id)
+);
+
+
+
+
+
+/* =========================================
+   HƯỚNG DẪN SIZE
+========================================= */
+
+ALTER TABLE products_real
+ADD size_guide NVARCHAR(MAX);
+
+
+
+
+
+/* =========================================
+   CART HỖ TRỢ VARIANT
+========================================= */
+
+ALTER TABLE cart
+ADD variant_id INT NULL;
+
+ALTER TABLE cart
+ADD CONSTRAINT FK_cart_variant
+FOREIGN KEY (variant_id)
+REFERENCES product_variants(variant_id);
+
+
+
+
+
+/* =========================================
+   ORDER ITEMS HỖ TRỢ VARIANT
+========================================= */
+
+ALTER TABLE order_items
+ADD variant_id INT NULL;
+
+ALTER TABLE order_items
+ADD CONSTRAINT FK_order_items_variant
+FOREIGN KEY (variant_id)
+REFERENCES product_variants(variant_id);
+
+
+
+
+
+/* =========================================
+   EVENT HỖ TRỢ VARIANT
+========================================= */
+
+ALTER TABLE events
+ADD variant_id INT NULL;
+
+ALTER TABLE events
+ADD CONSTRAINT FK_events_variant
+FOREIGN KEY (variant_id)
+REFERENCES product_variants(variant_id);
+SELECT TOP 20 item_id, product_name
+FROM products_real;
+INSERT INTO product_variants (
+    item_id,
+    color,
+    storage,
+    stock,
+    price
+)
+VALUES
+(3, N'Đen', N'128GB', 10, 22000000),
+(3, N'Trắng', N'256GB', 5, 25000000);
