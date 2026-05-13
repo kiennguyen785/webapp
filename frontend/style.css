@@ -1480,6 +1480,7 @@ nav a:hover {
     z-index: 99999;
     align-items: center;
     justify-content: center;
+    transition: opacity 0.2s ease;
 }
 
 .message-box {
@@ -1601,4 +1602,109 @@ nav a:hover {
     padding: 14px;
     color: #bbb;
     font-size: 14px;
+}
+/* MESSAGE MODAL */
+.message-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.45);
+    justify-content: center;
+    align-items: center;
+}
+
+.message-box {
+    width: 360px;
+    max-width: 90%;
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+}
+
+.message-close {
+    position: absolute;
+    top: 8px;
+    right: 14px;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.message-ok {
+    margin-top: 16px;
+    padding: 10px 34px;
+
+    border: none;
+    border-radius: 999px;
+
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
+}
+
+.message-ok:hover {
+    transform: translateY(-2px);
+
+    background: linear-gradient(135deg, #4ade80, #15803d);
+
+    box-shadow: 0 6px 18px rgba(34, 197, 94, 0.45);
+}
+
+.message-ok:active {
+    transform: scale(0.96);
+}
+.message-success h2 {
+    color: #16a34a;
+}
+
+.message-error h2 {
+    color: #dc2626;
+}
+.message-icon {
+    width: 90px;
+    height: 90px;
+
+    margin: 0 auto 18px;
+
+    border-radius: 50%;
+
+    background: #45b649;
+
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 62px;
+    font-weight: bold;
+
+    line-height: 1;
+}
+
+.message-success .message-icon {
+    color: #22c55e;
+}
+
+.message-error .message-icon {
+    color: #ef4444;
+}
+
+.message-success #messageTitle {
+    color: #22c55e;
+}
+
+.message-error #messageTitle {
+    color: #ef4444;
 }

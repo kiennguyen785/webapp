@@ -8,7 +8,7 @@
 
 <div class="auth-container">
     <span class="close-btn" onclick="window.location.href='/'">×</span>
-    <h2>Register</h2>
+    <h2>Đăng ký</h2>
     <input id="username" placeholder="Username">
     <input id="password" type="password" placeholder="Password">
     <input id="confirmPassword" type="password" placeholder="Confirm Password">
@@ -19,17 +19,26 @@
 </div>
 <div id="messageModal" class="message-modal">
     <div id="messageBox" class="message-box">
-        <span class="message-close" onclick="closeMessage()">×</span>
 
-        <div class="message-icon">✓</div>
+        <span class="message-close"
+              onclick="closeMessage()">&times;</span>
 
-        <div id="messageText" class="message-text">
-            Thành công
+        <div id="messageIcon"
+             class="message-icon">
+            ✓
         </div>
 
-        <button onclick="closeMessage()" class="message-ok">
+        <h2 id="messageTitle">Thông báo</h2>
+
+        <p id="messageText"></p>
+
+        <button class="message-ok"
+                onclick="closeMessage()">
+
             OK
+
         </button>
+
     </div>
 </div>
 <script src="{{ url_for('static', filename='script.js') }}"></script>

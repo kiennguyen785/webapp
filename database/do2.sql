@@ -225,3 +225,46 @@ go
 SELECT TOP 50 *
 FROM events
 ORDER BY event_time DESC;
+use da2
+go
+UPDATE products_real
+SET image_url =
+    CASE
+        WHEN product_name LIKE N'%iPhone%'
+            THEN 'https://loremflickr.com/600/600/iphone?lock=' + CAST(item_id AS NVARCHAR)
+
+        WHEN product_name LIKE N'%Samsung%'
+            THEN 'https://loremflickr.com/600/600/samsung-phone?lock=' + CAST(item_id AS NVARCHAR)
+
+        WHEN product_name LIKE N'%Oppo%'
+            THEN 'https://loremflickr.com/600/600/oppo-phone?lock=' + CAST(item_id AS NVARCHAR)
+
+        WHEN product_name LIKE N'%Xiaomi%'
+            THEN 'https://loremflickr.com/600/600/xiaomi-phone?lock=' + CAST(item_id AS NVARCHAR)
+
+        WHEN product_name LIKE N'%Tai nghe%'
+            THEN 'https://loremflickr.com/600/600/headphones?lock=' + CAST(item_id AS NVARCHAR)
+
+        WHEN product_name LIKE N'%Sạc%'
+            THEN 'https://loremflickr.com/600/600/phone-charger?lock=' + CAST(item_id AS NVARCHAR)
+
+        WHEN product_name LIKE N'%Ốp%'
+            THEN 'https://loremflickr.com/600/600/phone-case?lock=' + CAST(item_id AS NVARCHAR)
+
+        WHEN product_name LIKE N'%Đồng hồ%' OR product_name LIKE N'%Watch%'
+            THEN 'https://loremflickr.com/600/600/smartwatch?lock=' + CAST(item_id AS NVARCHAR)
+
+        WHEN product_name LIKE N'%Áo%'
+            THEN 'https://loremflickr.com/600/600/tshirt?lock=' + CAST(item_id AS NVARCHAR)
+
+        WHEN product_name LIKE N'%Giày%'
+            THEN 'https://loremflickr.com/600/600/shoes?lock=' + CAST(item_id AS NVARCHAR)
+
+        WHEN product_name LIKE N'%Bánh%'
+            THEN 'https://loremflickr.com/600/600/cake-snack?lock=' + CAST(item_id AS NVARCHAR)
+
+        WHEN product_name LIKE N'%Sữa%'
+            THEN 'https://loremflickr.com/600/600/milk?lock=' + CAST(item_id AS NVARCHAR)
+
+        ELSE 'https://loremflickr.com/600/600/product?lock=' + CAST(item_id AS NVARCHAR)
+    END;

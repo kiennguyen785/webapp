@@ -13,11 +13,14 @@ function loadProducts() {
     const box = document.getElementById("products");
     if (!box) return;
 
-    fetch("api/products")
+    fetch("/api/products")
         .then(res => res.json())
         .then(data => {
             allProducts = data;
             renderProducts(data);
+        })
+        .catch(() => {
+            showMessage("Không tải được danh sách sản phẩm", "error");
         });
 }
 
@@ -62,8 +65,12 @@ function loadCategory(category) {
         .then(data => {
             allProducts = data;
             renderProducts(data);
+        })
+        .catch(() => {
+            showMessage("Không tải được danh mục sản phẩm", "error");
         });
 }
+
 function loadRecommend() {
     const box = document.getElementById("products");
     if (!box) return;
@@ -89,18 +96,27 @@ function loadRecommend() {
 
             allProducts = data;
             renderProducts(data);
+        })
+        .catch(() => {
+            showMessage("Không tải được sản phẩm gợi ý", "error");
         });
 }
+
 function openProduct(id) {
     fetch(`/api/product/${id}`)
         .then(res => res.json())
         .then(p => {
             if (p.status === "error") {
-                showMessage("Không tìm thấy sản phẩm");
+                showMessage("Không tìm thấy sản phẩm", "error");
                 return;
             }
 
-            document.getElementById("productDetail").innerHTML = `
+            const detail = document.getElementById("productDetail");
+            const modal = document.getElementById("productModal");
+
+            if (!detail || !modal) return;
+
+            detail.innerHTML = `
                 <div class="detail-box">
                     <div>
                         <img src="${p.image}" class="detail-img"
@@ -126,8 +142,11 @@ function openProduct(id) {
                 </div>
             `;
 
-            document.getElementById("productModal").style.display = "block";
+            modal.style.display = "block";
             saveEvent(id, "view");
+        })
+        .catch(() => {
+            showMessage("Lỗi mở chi tiết sản phẩm", "error");
         });
 }
 
@@ -140,21 +159,19 @@ function closeModal() {
 
 function searchProducts() {
     const input = document.getElementById("searchInput");
-    const title = document.getElementById("search-result-title");
 
     if (!input) return;
 
     const keyword = input.value.toLowerCase().trim();
 
     if (!keyword) {
-        if (title) title.innerHTML = "";
         renderProducts(allProducts);
         return;
     }
 
     const filtered = allProducts.filter(p =>
-        p.name.toLowerCase().includes(keyword) ||
-        p.category.toLowerCase().includes(keyword)
+        String(p.name || "").toLowerCase().includes(keyword) ||
+        String(p.category || "").toLowerCase().includes(keyword)
     );
 
     renderProducts(filtered);
@@ -173,7 +190,9 @@ function selectCategory(element, category) {
         item.classList.remove("active");
     });
 
-    element.classList.add("active");
+    if (element) {
+        element.classList.add("active");
+    }
 
     if (category === null) {
         loadProducts();
@@ -192,7 +211,7 @@ function saveEvent(itemId, type) {
             item_id: itemId,
             event_type: type
         })
-    });
+    }).catch(() => {});
 }
 
 /* ================= CART ================= */
@@ -218,12 +237,15 @@ function addToCart(id) {
         if (!data) return;
 
         if (data.status === "error") {
-            showMessage(data.message);
+            showMessage(data.message || "Thêm vào giỏ hàng thất bại", "error");
             return;
         }
 
         saveEvent(id, "add_to_cart");
-        showMessage("Đã thêm vào giỏ hàng");
+        showMessage("Đã thêm vào giỏ hàng", "success");
+    })
+    .catch(() => {
+        showMessage("Thêm vào giỏ hàng thất bại", "error");
     });
 }
 
@@ -241,6 +263,7 @@ function loadCart() {
                 window.location.href = "/login";
                 return null;
             }
+
             return res.json();
         })
         .then(items => {
@@ -250,7 +273,11 @@ function loadCart() {
 
             if (items.length === 0) {
                 box.innerHTML = `<div class="empty-cart">Giỏ hàng đang trống</div>`;
-                if (totalBox) totalBox.innerHTML = `Tổng tiền: <b>0₫</b>`;
+
+                if (totalBox) {
+                    totalBox.innerHTML = `Tổng tiền: <b>0₫</b>`;
+                }
+
                 return;
             }
 
@@ -307,8 +334,12 @@ function loadCart() {
                     <b>${total.toLocaleString()}₫</b>
                 `;
             }
+        })
+        .catch(() => {
+            showMessage("Không tải được giỏ hàng", "error");
         });
 }
+
 function increaseQty(cartId) {
     fetch("/cart/update", {
         method: "POST",
@@ -321,14 +352,13 @@ function increaseQty(cartId) {
     .then(res => res.json())
     .then(data => {
         if (data.status === "ok") {
-        showMessage(
-            "Đặt hàng thành công",
-            "success",
-            "/orders"
-        );
-
-        return;
-    }
+            loadCart();
+        } else {
+            showMessage(data.message || "Không thể tăng số lượng", "error");
+        }
+    })
+    .catch(() => {
+        showMessage("Không thể tăng số lượng", "error");
     });
 }
 
@@ -346,8 +376,11 @@ function decreaseQty(cartId) {
         if (data.status === "ok") {
             loadCart();
         } else {
-            showMessage(data.message);
+            showMessage(data.message || "Không thể giảm số lượng", "error");
         }
+    })
+    .catch(() => {
+        showMessage("Không thể giảm số lượng", "error");
     });
 }
 
@@ -364,17 +397,18 @@ function removeCart(cartId) {
         if (data.status === "ok") {
             loadCart();
         } else {
-            showMessage(data.message);
+            showMessage(data.message || "Không thể xoá sản phẩm", "error");
         }
+    })
+    .catch(() => {
+        showMessage("Không thể xoá sản phẩm", "error");
     });
 }
 
 function checkoutCart() {
     fetch("/cart/checkout", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({})
     })
     .then(res => {
@@ -389,16 +423,14 @@ function checkoutCart() {
         if (!data) return;
 
         if (data.status === "ok") {
-            showMessage("Đặt hàng thành công");
-
-            setTimeout(() => {
-                window.location.href = "/orders";
-            }, 1000);
-
+            showMessage("Đặt hàng thành công", "success", "/orders");
             return;
         }
 
-        showMessage(data.message);
+        showMessage(data.message || "Đặt hàng thất bại", "error");
+    })
+    .catch(() => {
+        showMessage("Đặt hàng thất bại", "error");
     });
 }
 
@@ -428,7 +460,15 @@ function openCheckout(itemId) {
             if (addressInput) addressInput.value = data.address || "";
 
             const checkoutModal = document.getElementById("checkoutModal");
-            if (checkoutModal) checkoutModal.style.display = "block";
+
+            if (checkoutModal) {
+                checkoutModal.style.display = "block";
+            } else {
+                showMessage("Không tìm thấy form đặt hàng", "error");
+            }
+        })
+        .catch(() => {
+            showMessage("Không tải được thông tin đặt hàng", "error");
         });
 }
 
@@ -438,25 +478,32 @@ function closeCheckout() {
 }
 
 function submitOrder() {
-    const name = document.getElementById("customerName").value.trim();
-    const phone = document.getElementById("customerPhone").value.trim();
-    const address = document.getElementById("customerAddress").value.trim();
+    const nameInput = document.getElementById("customerName");
+    const phoneInput = document.getElementById("customerPhone");
+    const addressInput = document.getElementById("customerAddress");
+
+    if (!nameInput || !phoneInput || !addressInput) {
+        showMessage("Không tìm thấy form đặt hàng", "error");
+        return;
+    }
+
+    const name = nameInput.value.trim();
+    const phone = phoneInput.value.trim();
+    const address = addressInput.value.trim();
 
     if (!name || !phone || !address) {
-        showMessage("Vui lòng nhập đầy đủ thông tin đặt hàng");
+        showMessage("Vui lòng nhập đầy đủ thông tin đặt hàng", "error");
         return;
     }
 
     if (!currentOrderItemId) {
-        showMessage("Không tìm thấy sản phẩm cần đặt");
+        showMessage("Không tìm thấy sản phẩm cần đặt", "error");
         return;
     }
 
     fetch("/cart/checkout", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
             item_id: currentOrderItemId,
             quantity: 1
@@ -474,16 +521,15 @@ function submitOrder() {
         if (!data) return;
 
         if (data.status === "ok") {
-            showMessage("Đặt hàng thành công");
-            window.location.href = "/orders";
+            closeCheckout();
+            showMessage("Đặt hàng thành công", "success", "/orders");
             return;
         }
 
-        showMessage(data.message);
+        showMessage(data.message || "Đặt hàng thất bại", "error");
     })
-    .catch(err => {
-        console.log("Lỗi submitOrder:", err);
-        showMessage("Lỗi xác nhận đặt hàng");
+    .catch(() => {
+        showMessage("Lỗi xác nhận đặt hàng", "error");
     });
 }
 
@@ -504,19 +550,19 @@ function register() {
 
     if (!username || !password || !confirm) {
         if (errorBox) errorBox.innerText = "Vui lòng nhập đầy đủ thông tin";
-        else showMessage("Vui lòng nhập đầy đủ thông tin");
+        else showMessage("Vui lòng nhập đầy đủ thông tin", "error");
         return;
     }
 
     if (password.length < 6) {
         if (errorBox) errorBox.innerText = "Mật khẩu phải có ít nhất 6 ký tự";
-        else showMessage("Mật khẩu phải có ít nhất 6 ký tự");
+        else showMessage("Mật khẩu phải có ít nhất 6 ký tự", "error");
         return;
     }
 
     if (password !== confirm) {
         if (errorBox) errorBox.innerText = "Mật khẩu nhập lại không khớp";
-        else showMessage("Mật khẩu nhập lại không khớp");
+        else showMessage("Mật khẩu nhập lại không khớp", "error");
         return;
     }
 
@@ -532,11 +578,14 @@ function register() {
     .then(data => {
         if (data.status === "error") {
             if (errorBox) errorBox.innerText = data.message;
-            else showMessage(data.message);
+            else showMessage(data.message, "error");
             return;
         }
 
-        window.location.href = "/profile";
+        showMessage("Đăng ký thành công", "success", "/profile");
+    })
+    .catch(() => {
+        showMessage("Đăng ký thất bại", "error");
     });
 }
 
@@ -549,7 +598,7 @@ function login() {
 
     if (!username || !password) {
         if (errorBox) errorBox.innerText = "Vui lòng nhập tài khoản và mật khẩu";
-        else showMessage("Vui lòng nhập tài khoản và mật khẩu");
+        else showMessage("Vui lòng nhập tài khoản và mật khẩu", "error");
         return;
     }
 
@@ -565,15 +614,18 @@ function login() {
     .then(data => {
         if (data.status !== "ok") {
             if (errorBox) errorBox.innerText = data.message;
-            else showMessage(data.message);
+            else showMessage(data.message || "Đăng nhập thất bại", "error");
             return;
         }
 
         if (data.profile_completed) {
-            window.location.href = "/";
+            showMessage("Đăng nhập thành công", "success", "/");
         } else {
-            window.location.href = "/profile";
+            showMessage("Đăng nhập thành công", "success", "/profile");
         }
+    })
+    .catch(() => {
+        showMessage("Đăng nhập thất bại", "error");
     });
 }
 
@@ -618,7 +670,7 @@ function saveProfile() {
 
     if (!full_name || !phone || !address) {
         if (errorBox) errorBox.innerText = "Vui lòng nhập đầy đủ thông tin";
-        else showMessage("Vui lòng nhập đầy đủ thông tin");
+        else showMessage("Vui lòng nhập đầy đủ thông tin", "error");
         return;
     }
 
@@ -626,7 +678,7 @@ function saveProfile() {
 
     if (!phoneRegex.test(phone)) {
         if (errorBox) errorBox.innerText = "Số điện thoại không hợp lệ";
-        else showMessage("Số điện thoại không hợp lệ");
+        else showMessage("Số điện thoại không hợp lệ", "error");
         return;
     }
 
@@ -651,14 +703,14 @@ function saveProfile() {
         if (!data) return;
 
         if (data.status === "ok") {
-            showMessage("Cập nhật thành công");
-            setTimeout(() => {
-                window.location.href = "/";
-            }, 800);
+            showMessage("Cập nhật thành công", "success", "/");
         } else {
             if (errorBox) errorBox.innerText = data.message;
-            else showMessage(data.message);
+            else showMessage(data.message || "Cập nhật thất bại", "error");
         }
+    })
+    .catch(() => {
+        showMessage("Cập nhật thất bại", "error");
     });
 }
 
@@ -700,8 +752,12 @@ function loadOrders() {
             });
 
             box.innerHTML = html;
+        })
+        .catch(() => {
+            showMessage("Không tải được lịch sử mua hàng", "error");
         });
 }
+
 /* ================= SLIDER ================= */
 
 function showSlide(index) {
@@ -728,34 +784,70 @@ function prevSlide() {
     showSlide(currentIndex - 1);
 }
 
-/* ================= TOAST ================= */
+/* ================= MESSAGE MODAL ================= */
 
-function showMessage(message) {
-    const toast = document.getElementById("toast");
-    const msg = document.getElementById("toast-msg");
+function showMessage(message, type = "success", redirectUrl = null) {
+    const modal = document.getElementById("messageModal");
+    const box = document.getElementById("messageBox");
+    const title = document.getElementById("messageTitle");
+    const text = document.getElementById("messageText");
+    const icon = document.getElementById("messageIcon");
 
-    if (!toast || !msg) {
-        showMessage(message);
+    if (!modal || !box || !title || !text || !icon) {
+        console.log(message);
+
+        if (redirectUrl) {
+            window.location.href = redirectUrl;
+        }
+
         return;
     }
 
-    msg.innerText = message;
-    toast.classList.add("show");
+    box.classList.remove("message-success", "message-error");
+
+    if (type === "error") {
+        title.innerText = "Thất bại";
+        icon.innerHTML = "×";
+        box.classList.add("message-error");
+    } else {
+        title.innerText = "Thành công";
+        icon.innerHTML = "✓";
+        box.classList.add("message-success");
+    }
+
+    text.innerText = message;
+
+    modal.dataset.redirect = redirectUrl || "";
+    modal.style.display = "flex";
 
     setTimeout(() => {
-        toast.classList.remove("show");
-    }, 2500);
+        modal.style.opacity = "1";
+    }, 10);
 }
 
-function closeToast() {
-    const toast = document.getElementById("toast");
-    if (toast) toast.classList.remove("show");
+function closeMessage() {
+    const modal = document.getElementById("messageModal");
+
+    if (!modal) return;
+
+    const redirectUrl = modal.dataset.redirect || "";
+
+    modal.dataset.redirect = "";
+    document.body.style.overflow = "auto";
+    modal.style.opacity = "0";
+
+    setTimeout(() => {
+        modal.style.display = "none";
+
+        if (redirectUrl) {
+            window.location.href = redirectUrl;
+        }
+    }, 200);
 }
 
 /* ================= INIT ================= */
 
 window.addEventListener("load", function () {
-
     if (window.location.pathname === "/recommend") {
         loadRecommend();
     } else {
@@ -765,7 +857,6 @@ window.addEventListener("load", function () {
     loadCart();
     loadProfile();
     loadOrders();
-
     showSlide(0);
 
     const input = document.getElementById("searchInput");
@@ -780,38 +871,3 @@ window.addEventListener("load", function () {
 
     setInterval(nextSlide, 3000);
 });
-
-function showMessage(message, type = "success", redirectUrl = null) {
-    const modal = document.getElementById("messageModal");
-    const box = document.getElementById("messageBox");
-    const text = document.getElementById("messageText");
-
-    if (!modal || !box || !text) {
-        alert(message);
-        if (redirectUrl) window.location.href = redirectUrl;
-        return;
-    }
-
-    text.innerText = message;
-
-    box.classList.remove("message-success", "message-error");
-    box.classList.add(type === "error" ? "message-error" : "message-success");
-
-    modal.style.display = "flex";
-    modal.dataset.redirect = redirectUrl || "";
-}
-
-function closeMessage() {
-    const modal = document.getElementById("messageModal");
-
-    if (!modal) return;
-
-    const redirectUrl = modal.dataset.redirect || "";
-
-    modal.style.display = "none";
-    modal.dataset.redirect = "";
-
-    if (redirectUrl) {
-        window.location.href = redirectUrl;
-    }
-}

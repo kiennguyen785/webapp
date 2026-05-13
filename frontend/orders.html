@@ -30,22 +30,15 @@
     <div id="orders"></div>
 
 </div>
-<div id="messageModal" class="message-modal">
-    <div id="messageBox" class="message-box">
-        <span class="message-close" onclick="closeMessage()">×</span>
-
-        <div class="message-icon">✓</div>
-
-        <div id="messageText" class="message-text">
-            Thành công
-        </div>
-
-        <button onclick="closeMessage()" class="message-ok">
-            OK
-        </button>
+<div id="messageModal">
+    <div class="message-box">
+        <span class="message-close" onclick="closeMessage()">&times;</span>
+        <h2 id="messageTitle">Thông báo</h2>
+        <p id="messageText"></p>
+        <button class="message-ok" onclick="closeMessage()">OK</button>
     </div>
 </div>
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+
 <footer class="footer">
     <div class="footer-content">
         <div>
@@ -73,5 +66,6 @@
         © 2026 Mini Shop. Đồ án Web App Gợi ý sản phẩm.
     </div>
 </footer>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
