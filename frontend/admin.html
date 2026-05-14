@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Quản lý tài khoản</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="header">
+
+    <div class="logo"
+         onclick="window.location.href='/'">
+        Mini Shop
+    </div>
+
+    <div class="search">
+        <input id="adminSearchInput"
+               type="text"
+               placeholder="Tìm tài khoản...">
+
+        <button onclick="loadAdminUsers()">
+            Tìm
+        </button>
+    </div>
+
+    <div class="header-right">
+
+        <nav>
+            <a href="/">Trang chủ</a>
+            <a href="/products">Sản phẩm</a>
+            <a href="/seller">Seller</a>
+            <a href="/admin" class="active-nav">Admin</a>
+        </nav>
+
+        <div id="authArea">
+
+            <div class="user-menu">
+
+                👤 {{ username }}
+
+                <div class="user-dropdown">
+
+                    <div onclick="window.location.href='/profile'">
+                        Thông tin cá nhân
+                    </div>
+
+                    <div onclick="window.location.href='/orders'">
+                        Lịch sử mua hàng
+                    </div>
+
+                    {% if role == 'admin' %}
+                        <div onclick="window.location.href='/seller'">
+                            Quản lý sản phẩm
+                        </div>
+                    {% endif %}
+
+                    {% if role == 'admin' %}
+                        <div onclick="window.location.href='/admin'">
+                            Quản lý tài khoản
+                        </div>
+                    {% endif %}
+
+                    <div onclick="logout()">
+                        Đăng xuất
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+<div class="container">
+
+    <h2 class="section-title">
+        Quản lý tài khoản
+    </h2>
+
+    <div id="adminUsers"
+         class="manage-list">
+    </div>
+
+</div>
+
+<div id="messageModal" class="message-modal">
+    <div id="messageBox" class="message-box">
+
+        <span class="message-close"
+              onclick="closeMessage()">
+            &times;
+        </span>
+
+        <div id="messageIcon"
+             class="message-icon">
+            ✓
+        </div>
+
+        <h2 id="messageTitle">
+            Thông báo
+        </h2>
+
+        <p id="messageText"></p>
+
+        <button class="message-ok"
+                onclick="closeMessage()">
+            OK
+        </button>
+
+    </div>
+</div>
+<div id="deleteUserModal" class="message-modal">
+
+    <div class="message-box">
+
+        <h2>Xác nhận</h2>
+
+        <p>
+            Bạn có chắc muốn xóa tài khoản này?
+        </p>
+
+        <div class="checkout-actions">
+
+            <button class="btn-back"
+                    onclick="closeDeleteUserModal()">
+                Hủy
+            </button>
+
+            <button class="btn-buy"
+                    onclick="confirmDeleteUser()">
+                Xóa
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script>
+    loadAdminUsers();
+</script>
+</body>
+
+</html>

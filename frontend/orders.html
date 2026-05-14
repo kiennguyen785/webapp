@@ -1,25 +1,108 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <title>Lịch sử mua hàng</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
 <header class="header">
 
-    <div class="logo" onclick="window.location.href='/'">
+    <div class="logo"
+         onclick="window.location.href='/'">
         Mini Shop
     </div>
 
-    <nav>
-        <a href="/">Trang chủ</a>
-        <a href="/cart">Giỏ hàng</a>
-        <a href="/recommend">Gợi ý</a>
-        <a href="/orders" class="active-nav">Lịch sử mua hàng</a>
-    </nav>
+    <div class="search">
+
+        <input
+            id="searchInput"
+            type="text"
+            placeholder="Tìm sản phẩm..."
+        >
+
+        <button onclick="searchProducts()">
+            Tìm
+        </button>
+
+    </div>
+
+    <div class="header-right">
+
+        <nav>
+            <a href="/">Trang chủ</a>
+            <a href="/products">Sản phẩm</a>
+            <a href="/recommend">Gợi ý</a>
+            <a href="/cart">Giỏ hàng</a>
+            <a href="/orders" class="active-nav">
+                Lịch sử mua hàng
+            </a>
+        </nav>
+
+        <div id="authArea">
+
+            {% if username %}
+
+                <div class="user-menu">
+
+                    👤 {{ username }}
+
+                    <div class="user-dropdown">
+
+                        <div onclick="window.location.href='/profile'">
+                            Thông tin cá nhân
+                        </div>
+
+                        <div onclick="window.location.href='/orders'">
+                            Lịch sử mua hàng
+                        </div>
+
+                        {% if role == 'seller' or role == 'admin' %}
+                            <div onclick="window.location.href='/seller'">
+                                Quản lý sản phẩm
+                            </div>
+                        {% endif %}
+
+                        {% if role == 'admin' %}
+                            <div onclick="window.location.href='/admin'">
+                                Quản lý tài khoản
+                            </div>
+                        {% endif %}
+
+                        <div onclick="logout()">
+                            Đăng xuất
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <div class="auth-buttons">
+
+                    <div class="auth-btn"
+                         onclick="window.location.href='/login'">
+                        Đăng nhập
+                    </div>
+
+                    <div class="auth-btn"
+                         onclick="window.location.href='/register'">
+                        Đăng ký
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
 
 </header>
 
@@ -30,42 +113,79 @@
     <div id="orders"></div>
 
 </div>
-<div id="messageModal">
+
+<div id="messageModal" class="message-modal">
+
     <div class="message-box">
-        <span class="message-close" onclick="closeMessage()">&times;</span>
-        <h2 id="messageTitle">Thông báo</h2>
+
+        <span class="message-close"
+              onclick="closeMessage()">
+            &times;
+        </span>
+
+        <div id="messageIcon"
+             class="message-icon">
+            ✓
+        </div>
+
+        <h2 id="messageTitle">
+            Thông báo
+        </h2>
+
         <p id="messageText"></p>
-        <button class="message-ok" onclick="closeMessage()">OK</button>
+
+        <button class="message-ok"
+                onclick="closeMessage()">
+            OK
+        </button>
+
     </div>
+
 </div>
 
 <footer class="footer">
+
     <div class="footer-content">
+
         <div>
             <h3>Mini Shop</h3>
-            <p>Website bán hàng tích hợp hệ thống gợi ý sản phẩm theo hành vi người dùng.</p>
+
+            <p>
+                Website bán hàng tích hợp hệ thống gợi ý sản phẩm theo hành vi người dùng.
+            </p>
         </div>
 
         <div>
+
             <h4>Liên kết</h4>
+
             <a href="/">Trang chủ</a>
             <a href="/products">Sản phẩm</a>
             <a href="/recommend">Gợi ý</a>
             <a href="/cart">Giỏ hàng</a>
+
         </div>
 
         <div>
+
             <h4>Hỗ trợ</h4>
-            <p>Hotline: 19000001913 </p>
+
+            <p>Hotline: 19000001913</p>
             <p>Email: support@minishop.vn</p>
             <p>Địa chỉ: Hưng Yên, Việt Nam</p>
+
         </div>
+
     </div>
 
     <div class="footer-bottom">
         © 2026 Mini Shop. Đồ án Web App Gợi ý sản phẩm.
     </div>
+
 </footer>
+
 <script src="{{ url_for('static', filename='script.js') }}"></script>
+
 </body>
+
 </html>

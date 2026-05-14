@@ -14,13 +14,28 @@
 
     <p>Chưa có tài khoản? <a href="/register">Đăng ký</a></p>
 </div>
-<div id="messageModal">
+<div id="messageModal" class="message-modal" style="display: none;">
+
     <div class="message-box">
-        <span class="message-close" onclick="closeMessage()">&times;</span>
-        <h2 id="messageTitle">Thông báo</h2>
+
+        <span class="message-close"
+              onclick="closeMessage()">
+            &times;
+        </span>
+
+        <h2 id="messageTitle">
+            Thông báo
+        </h2>
+
         <p id="messageText"></p>
-        <button class="message-ok" onclick="closeMessage()">OK</button>
+
+        <button class="message-ok"
+                onclick="closeMessage()">
+            OK
+        </button>
+
     </div>
+
 </div>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 

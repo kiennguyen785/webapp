@@ -2,14 +2,11 @@
 <html lang="vi">
 
 <head>
-
     <meta charset="UTF-8">
-
     <title>Giỏ hàng</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
-
 </head>
 
 <body>
@@ -18,13 +15,10 @@
 
     <div class="logo"
          onclick="window.location.href='/'">
-
         Mini Shop
-
     </div>
 
     <div class="search">
-
         <input
             id="searchInput"
             type="text"
@@ -34,27 +28,16 @@
         <button onclick="searchProducts()">
             Tìm
         </button>
-
     </div>
 
-    <nav>
+    <div class="header-right">
 
-        <a href="/">
-            Trang chủ
-        </a>
-
-        <a href="/products">
-            Sản phẩm
-        </a>
-
-        <a href="/recommend">
-            Gợi ý
-        </a>
-
-        <a href="/cart"
-           class="active-nav">
-            Giỏ hàng
-        </a>
+        <nav>
+            <a href="/">Trang chủ</a>
+            <a href="/products">Sản phẩm</a>
+            <a href="/recommend">Gợi ý</a>
+            <a href="/cart" class="active-nav">Giỏ hàng</a>
+        </nav>
 
         <div id="authArea">
 
@@ -74,6 +57,18 @@
                             Lịch sử mua hàng
                         </div>
 
+                        {% if role == 'seller' or role == 'admin' %}
+                            <div onclick="window.location.href='/seller'">
+                                Quản lý sản phẩm
+                            </div>
+                        {% endif %}
+
+                        {% if role == 'admin' %}
+                            <div onclick="window.location.href='/admin'">
+                                Quản lý tài khoản
+                            </div>
+                        {% endif %}
+
                         <div onclick="logout()">
                             Đăng xuất
                         </div>
@@ -88,16 +83,12 @@
 
                     <div class="auth-btn"
                          onclick="window.location.href='/login'">
-
                         Đăng nhập
-
                     </div>
 
                     <div class="auth-btn"
                          onclick="window.location.href='/register'">
-
                         Đăng ký
-
                     </div>
 
                 </div>
@@ -106,7 +97,7 @@
 
         </div>
 
-    </nav>
+    </div>
 
 </header>
 
@@ -118,24 +109,18 @@
 
     <div class="cart-summary">
 
-        <div id="cartTotal"></div>
+        <div id="cartTotal">
+            Tổng tiền: <b>0₫</b>
+        </div>
 
         <button onclick="checkoutCart()">
-
             Đặt hàng
-
         </button>
 
     </div>
 
 </div>
-<script src="{{ url_for('static', filename='script.js') }}"></script>
 
-<script>
-
-loadCart();
-
-</script>
 <footer class="footer">
     <div class="footer-content">
         <div>
@@ -153,7 +138,7 @@ loadCart();
 
         <div>
             <h4>Hỗ trợ</h4>
-            <p>Hotline: 19000001913 </p>
+            <p>Hotline: 19000001913</p>
             <p>Email: support@minishop.vn</p>
             <p>Địa chỉ: Hưng Yên, Việt Nam</p>
         </div>
@@ -166,18 +151,33 @@ loadCart();
 
 <div id="messageModal" class="message-modal">
     <div id="messageBox" class="message-box">
-        <span class="message-close" onclick="closeMessage()">&times;</span>
-        <h2 id="messageTitle">Thông báo</h2>
+
+        <span class="message-close"
+              onclick="closeMessage()">
+            &times;
+        </span>
+
+        <div id="messageIcon"
+             class="message-icon">
+            ✓
+        </div>
+
+        <h2 id="messageTitle">
+            Thông báo
+        </h2>
+
         <p id="messageText"></p>
-        <button class="message-ok" onclick="closeMessage()">OK</button>
+
+        <button class="message-ok"
+                onclick="closeMessage()">
+            OK
+        </button>
+
     </div>
 </div>
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 
-<script>
-    loadCart();
-</script>
-
 </body>
+
 </html>

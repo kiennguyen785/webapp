@@ -196,10 +196,6 @@ REFERENCES products_real(item_id);
 
 
 ALTER TABLE cart
-ADD CONSTRAINT UQ_cart_user_item UNIQUE (user_id, item_id);
-
-
-ALTER TABLE cart
 ADD CONSTRAINT CK_cart_quantity CHECK (quantity > 0);
 
 ALTER TABLE order_items
@@ -228,47 +224,6 @@ ORDER BY event_time DESC;
 
 use da2
 go
-UPDATE products_real
-SET image_url =
-    CASE
-        WHEN product_name LIKE N'%iPhone%'
-            THEN 'https://loremflickr.com/600/600/iphone?lock=' + CAST(item_id AS NVARCHAR)
-
-        WHEN product_name LIKE N'%Samsung%'
-            THEN 'https://loremflickr.com/600/600/samsung-phone?lock=' + CAST(item_id AS NVARCHAR)
-
-        WHEN product_name LIKE N'%Oppo%'
-            THEN 'https://loremflickr.com/600/600/oppo-phone?lock=' + CAST(item_id AS NVARCHAR)
-
-        WHEN product_name LIKE N'%Xiaomi%'
-            THEN 'https://loremflickr.com/600/600/xiaomi-phone?lock=' + CAST(item_id AS NVARCHAR)
-
-        WHEN product_name LIKE N'%Tai nghe%'
-            THEN 'https://loremflickr.com/600/600/headphones?lock=' + CAST(item_id AS NVARCHAR)
-
-        WHEN product_name LIKE N'%Sạc%'
-            THEN 'https://loremflickr.com/600/600/phone-charger?lock=' + CAST(item_id AS NVARCHAR)
-
-        WHEN product_name LIKE N'%Ốp%'
-            THEN 'https://loremflickr.com/600/600/phone-case?lock=' + CAST(item_id AS NVARCHAR)
-
-        WHEN product_name LIKE N'%Đồng hồ%' OR product_name LIKE N'%Watch%'
-            THEN 'https://loremflickr.com/600/600/smartwatch?lock=' + CAST(item_id AS NVARCHAR)
-
-        WHEN product_name LIKE N'%Áo%'
-            THEN 'https://loremflickr.com/600/600/tshirt?lock=' + CAST(item_id AS NVARCHAR)
-
-        WHEN product_name LIKE N'%Giày%'
-            THEN 'https://loremflickr.com/600/600/shoes?lock=' + CAST(item_id AS NVARCHAR)
-
-        WHEN product_name LIKE N'%Bánh%'
-            THEN 'https://loremflickr.com/600/600/cake-snack?lock=' + CAST(item_id AS NVARCHAR)
-
-        WHEN product_name LIKE N'%Sữa%'
-            THEN 'https://loremflickr.com/600/600/milk?lock=' + CAST(item_id AS NVARCHAR)
-
-        ELSE 'https://loremflickr.com/600/600/product?lock=' + CAST(item_id AS NVARCHAR)
-    END;
 
 /* =========================================
    ROLE + SELLER
@@ -421,3 +376,194 @@ INSERT INTO product_variants (
 VALUES
 (3, N'Đen', N'128GB', 10, 22000000),
 (3, N'Trắng', N'256GB', 5, 25000000);
+
+
+SELECT
+    fk.name AS FK_Name,
+    OBJECT_NAME(fk.parent_object_id) AS Table_Name
+FROM sys.foreign_keys fk
+ORDER BY Table_Name;
+
+SELECT
+    kc.name AS Constraint_Name,
+    OBJECT_NAME(kc.parent_object_id) AS Table_Name
+FROM sys.key_constraints kc
+WHERE kc.type = 'UQ'
+ORDER BY Table_Name;
+ALTER TABLE cart
+DROP CONSTRAINT UQ_cart_user_item;
+
+ALTER TABLE cart
+ADD CONSTRAINT UQ_cart_user_item_variant
+UNIQUE (user_id, item_id, variant_id);
+
+SELECT 
+    TABLE_NAME,
+    COLUMN_NAME
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME IN (
+    'users',
+    'products_real',
+    'cart',
+    'events',
+    'order_items'
+)
+ORDER BY TABLE_NAME;
+
+SELECT 
+    TABLE_NAME,
+    COLUMN_NAME
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME IN (
+    'product_variants',
+    'product_attributes'
+)
+ORDER BY TABLE_NAME;
+
+SELECT
+    kc.name AS Constraint_Name,
+    OBJECT_NAME(kc.parent_object_id) AS Table_Name
+FROM sys.key_constraints kc
+WHERE kc.type = 'UQ'
+ORDER BY Table_Name;
+use da2;
+go
+
+ALTER TABLE users
+ADD role NVARCHAR(20) DEFAULT 'user';
+
+INSERT INTO users (
+    username,
+    password,
+    role,
+    is_profile_completed
+)
+VALUES (
+    'admin',
+    '123456',
+    'admin',
+    1
+);
+INSERT INTO product_variants (
+    item_id,
+    color,
+    storage,
+    stock,
+    price,
+    image_url
+)
+SELECT
+    p.item_id,
+    v.color,
+    v.storage,
+    20 AS stock,
+    p.price + v.extra_price,
+    p.image_url
+FROM products_real p
+CROSS APPLY (
+    VALUES
+        (N'Đen', N'128GB', 0),
+        (N'Trắng', N'256GB', 1000000)
+) v(color, storage, extra_price)
+WHERE p.main_category = N'Điện thoại'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM product_variants pv
+      WHERE pv.item_id = p.item_id
+  );
+
+  INSERT INTO product_variants (
+    item_id,
+    color,
+    size,
+    stock,
+    price,
+    image_url
+)
+SELECT
+    p.item_id,
+    v.color,
+    v.size,
+    30 AS stock,
+    p.price,
+    p.image_url
+FROM products_real p
+CROSS APPLY (
+    VALUES
+        (N'Đen', N'M'),
+        (N'Đen', N'L'),
+        (N'Trắng', N'M'),
+        (N'Trắng', N'L')
+) v(color, size)
+WHERE p.main_category = N'Thời trang'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM product_variants pv
+      WHERE pv.item_id = p.item_id
+  );
+
+
+  INSERT INTO product_variants (
+    item_id,
+    color,
+    stock,
+    price,
+    image_url
+)
+SELECT
+    p.item_id,
+    v.color,
+    25 AS stock,
+    p.price,
+    p.image_url
+FROM products_real p
+CROSS APPLY (
+    VALUES
+        (N'Đen'),
+        (N'Trắng'),
+        (N'Xanh')
+) v(color)
+WHERE p.main_category = N'Phụ kiện điện thoại'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM product_variants pv
+      WHERE pv.item_id = p.item_id
+  );
+
+  INSERT INTO product_variants (
+    item_id,
+    color,
+    size,
+    stock,
+    price,
+    image_url
+)
+SELECT
+    p.item_id,
+    v.color,
+    v.size,
+    15 AS stock,
+    p.price + v.extra_price,
+    p.image_url
+FROM products_real p
+CROSS APPLY (
+    VALUES
+        (N'Đen', N'40mm', 0),
+        (N'Bạc', N'44mm', 500000),
+        (N'Vàng', N'44mm', 800000)
+) v(color, size, extra_price)
+WHERE p.main_category = N'Đồng hồ'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM product_variants pv
+      WHERE pv.item_id = p.item_id
+
+  );
+
+UPDATE users
+SET role = 'admin'
+WHERE username = 'admin';
+
+UPDATE users
+SET role = 'user'
+WHERE role = 'seller';

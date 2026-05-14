@@ -1,0 +1,79 @@
+<div id="productModal" class="modal">
+
+    <div class="modal-content detail-modal">
+
+        <span class="close"
+              onclick="closeModal()">
+            &times;
+        </span>
+
+        <div id="productDetail"></div>
+
+    </div>
+
+</div>
+
+<div id="checkoutModal" class="modal">
+
+    <div class="modal-content checkout-modal">
+
+        <span class="close"
+              onclick="closeCheckout()">
+            &times;
+        </span>
+
+        <h2>Xác nhận đặt hàng</h2>
+
+        <p class="muted">
+            Sản phẩm sẽ được đặt theo phân loại bạn đã chọn.
+        </p>
+
+        <div class="checkout-actions">
+
+            <button class="btn-back"
+                    onclick="closeCheckout()">
+                Quay lại
+            </button>
+
+            <button class="btn-buy"
+                    onclick="submitOrder()">
+                Xác nhận đặt hàng
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="messageModal" class="message-modal">
+
+    <div id="messageBox"
+         class="message-box">
+
+        <span class="message-close"
+              onclick="closeMessage()">
+            &times;
+        </span>
+
+        <div id="messageIcon"
+             class="message-icon">
+            ✓
+        </div>
+
+        <h2 id="messageTitle">
+            Thông báo
+        </h2>
+
+        <p id="messageText">
+            Thành công
+        </p>
+
+        <button class="message-ok"
+                onclick="closeMessage()">
+            OK
+        </button>
+
+    </div>
+
+</div>

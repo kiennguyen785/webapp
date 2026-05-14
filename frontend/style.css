@@ -1708,3 +1708,366 @@ nav a:hover {
 .message-error #messageTitle {
     color: #ef4444;
 }
+.variant-group{
+    margin-top:15px;
+}
+
+.variant-btn{
+    padding:8px 14px;
+    border:none;
+    border-radius:6px;
+    margin-right:8px;
+    margin-top:8px;
+    cursor:pointer;
+    background:#eeeeee;
+}
+
+.variant-btn:hover{
+    background:#ff5722;
+    color:white;
+}
+
+.size-guide{
+    margin-top:15px;
+    padding:10px;
+    background:#fff3e0;
+    border-radius:6px;
+}
+
+.seller-form{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-bottom:30px;
+}
+
+.seller-form input,
+.seller-form textarea{
+    padding:10px;
+}
+/* ================= SELLER PRODUCT LIST ================= */
+
+.seller-product-list {
+    display: block;
+}
+
+.seller-product-item {
+    display: grid;
+    grid-template-columns: 120px 1fr 300px;
+    gap: 22px;
+    align-items: center;
+
+    background: white;
+    padding: 22px;
+    margin-bottom: 20px;
+
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.seller-product-item img {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 12px;
+    background: #eee;
+}
+
+.seller-product-info h3 {
+    margin: 0 0 8px;
+    font-size: 26px;
+}
+
+.seller-product-info p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.seller-product-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.seller-product-actions button {
+    height: 42px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.btn-edit-product {
+    background: #ffb300;
+    color: white;
+}
+
+.btn-delete-product {
+    background: red;
+    color: white;
+}
+/* ================= VARIANT ================= */
+
+.variant-group {
+    margin: 14px 0;
+}
+
+.variant-group b {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+.variant-btn {
+    padding: 8px 14px;
+    margin: 4px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.variant-btn:hover {
+    border-color: #ee4d2d;
+    color: #ee4d2d;
+    background: #fff5f1;
+}
+
+.active-variant {
+    border: 2px solid #ee4d2d !important;
+    color: #ee4d2d;
+    background: #fff0eb;
+}
+
+/* ================= SIZE GUIDE ================= */
+
+.size-guide {
+    margin: 14px 0;
+    padding: 12px;
+    background: #fff7ed;
+    border-left: 4px solid #ee4d2d;
+    border-radius: 6px;
+}
+
+.size-guide p {
+    margin-top: 6px;
+    color: #555;
+}
+
+/* ================= ATTRIBUTES ================= */
+
+.product-attrs {
+    margin: 15px 0;
+    padding: 12px;
+    background: #fafafa;
+    border-radius: 8px;
+}
+
+.product-attrs p {
+    margin: 5px 0;
+    color: #444;
+}
+
+/* ================= PRODUCT ================= */
+
+.thumb-wrap {
+    position: relative;
+}
+
+.out-stock {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.card-actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ================= CART ================= */
+
+.cart-variant {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #777;
+}
+
+.cart-label {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 4px;
+}
+
+.cart-price-box,
+.cart-qty-box,
+.cart-total-box {
+    min-width: 110px;
+    text-align: center;
+}
+
+.cart-item-total {
+    color: #ee4d2d;
+    font-weight: bold;
+}
+
+/* ================= ORDER ================= */
+
+.order-item {
+    display: flex;
+    gap: 18px;
+    padding: 18px;
+    margin-bottom: 18px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.order-item img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.order-info h3 {
+    margin-bottom: 10px;
+}
+
+/* ================= ADMIN ================= */
+
+.admin-user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px;
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.admin-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.admin-actions select {
+    padding: 8px;
+    border-radius: 6px;
+}
+
+/* ================= SELLER ================= */
+
+.manage-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.manage-form input,
+.manage-form textarea {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.manage-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(260px,1fr));
+    gap: 18px;
+}
+
+/* ================= EMPTY ================= */
+
+.empty-cart {
+    text-align: center;
+    padding: 40px;
+    color: #777;
+    font-size: 18px;
+}
+
+/* ================= ADMIN USER LIST ================= */
+
+#adminUsers.manage-list {
+    display: block;
+}
+
+.admin-user-item {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 20px;
+    align-items: center;
+
+    background: white;
+    padding: 24px 28px;
+    margin-bottom: 22px;
+
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.admin-user-item h3 {
+    font-size: 28px;
+    margin: 0 0 12px;
+}
+
+.admin-user-item p {
+    margin: 6px 0;
+    font-size: 16px;
+    color: #444;
+}
+
+.admin-user-item b {
+    color: #ee4d2d;
+}
+
+.admin-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-actions select {
+    height: 42px;
+    min-width: 120px;
+    padding: 0 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.admin-actions button {
+    height: 42px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.admin-actions button:not(.remove-btn) {
+    background: #ee4d2d;
+    color: white;
+}
+
+.admin-actions .remove-btn {
+    background: red;
+    color: white;
+}

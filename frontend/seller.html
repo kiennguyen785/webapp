@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Seller - Quản lý sản phẩm</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="header">
+
+    <div class="logo" onclick="window.location.href='/'">
+        Mini Shop
+    </div>
+
+    <div class="search">
+        <input id="sellerSearchInput" type="text" placeholder="Tìm sản phẩm của tôi...">
+        <button onclick="loadSellerProducts()">Tìm</button>
+    </div>
+
+    <div class="header-right">
+        <nav>
+            <a href="/">Trang chủ</a>
+            <a href="/products">Sản phẩm</a>
+            <a href="/seller" class="active-nav">Seller</a>
+            <a href="/cart">Giỏ hàng</a>
+        </nav>
+
+        <div id="authArea">
+            <div class="user-menu">
+                👤 {{ username }}
+
+                <div class="user-dropdown">
+                    <div onclick="window.location.href='/profile'">Thông tin cá nhân</div>
+                    <div onclick="window.location.href='/orders'">Lịch sử mua hàng</div>
+
+                    {% if role == 'admin' %}
+                        <div onclick="window.location.href='/admin'">Quản lý tài khoản</div>
+                    {% endif %}
+
+                    <div onclick="logout()">Đăng xuất</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</header>
+
+<div class="container">
+
+    <h2 class="section-title">Seller quản lý sản phẩm</h2>
+
+    <div class="manage-form">
+
+        <input id="sellerItemId" type="hidden">
+
+        <input id="sellerName" placeholder="Tên sản phẩm">
+
+        <input id="sellerCategory" placeholder="Danh mục">
+
+        <input id="sellerPrice" type="number" placeholder="Giá">
+
+        <input id="sellerQuantity" type="number" placeholder="Số lượng">
+
+        <input id="sellerImage" placeholder="Link ảnh">
+
+        <textarea id="sellerDesc" placeholder="Mô tả sản phẩm"></textarea>
+
+        <textarea id="sellerSizeGuide" placeholder="Hướng dẫn chọn size"></textarea>
+
+        <button class="btn-buy" onclick="saveSellerProduct()">
+            Lưu sản phẩm
+        </button>
+
+        <button class="btn-back" onclick="resetSellerForm()">
+            Làm mới form
+        </button>
+
+    </div>
+
+    <h2 class="section-title">Sản phẩm của tôi</h2>
+
+    <div id="sellerProducts" class="seller-product-list"></div>
+
+</div>
+
+<div id="messageModal" class="message-modal">
+    <div id="messageBox" class="message-box">
+        <span class="message-close" onclick="closeMessage()">&times;</span>
+        <div id="messageIcon" class="message-icon">✓</div>
+        <h2 id="messageTitle">Thông báo</h2>
+        <p id="messageText"></p>
+        <button class="message-ok" onclick="closeMessage()">OK</button>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+<script>
+    loadSellerProducts();
+</script>
+
+</body>
+
+</html>
