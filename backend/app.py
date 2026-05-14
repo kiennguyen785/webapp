@@ -1530,8 +1530,5 @@ def delete_seller_product(item_id):
     return jsonify({
         "status": "ok"
     })
-
-
-
 if __name__ == "__main__":
     app.run(debug=True)

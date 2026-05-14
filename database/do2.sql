@@ -48,12 +48,6 @@ ALTER TABLE cart
 ADD CONSTRAINT FK_cart_products
 FOREIGN KEY (item_id) REFERENCES products(item_id);
 GO
-
-
-
-
-
-
 ALTER TABLE users ADD
     full_name NVARCHAR(255) NULL,
     phone NVARCHAR(20) NULL,
@@ -318,9 +312,6 @@ ALTER TABLE products_real
 ADD size_guide NVARCHAR(MAX);
 
 
-
-
-
 /* =========================================
    CART HỖ TRỢ VARIANT
 ========================================= */
@@ -567,3 +558,9 @@ WHERE username = 'admin';
 UPDATE users
 SET role = 'user'
 WHERE role = 'seller';
+use da2;
+go
+UPDATE products_real
+SET image_url =
+'https://source.unsplash.com/600x600/?' +
+REPLACE(product_name, ' ', ',')

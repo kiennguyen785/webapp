@@ -43,7 +43,7 @@
                     Lịch sử mua hàng
                 </div>
 
-                {% if role == 'seller' or role == 'admin' %}
+                {% if role == 'admin' %}
                     <div onclick="window.location.href='/seller'">
                         Quản lý sản phẩm
                     </div>
@@ -96,10 +96,39 @@
         <div class="cat-item" onclick="selectCategory(this, 'Thực phẩm')">Thực phẩm</div>
     </div>
 </div>
+<!-- SERVICE BOX -->
+<div class="container">
+    <div class="service-box">
 
+        <div class="service-item">
+            <div class="service-icon">🚚</div>
+            <div>
+                <h3>Giao hàng nhanh</h3>
+                <p>Hỗ trợ giao hàng toàn quốc</p>
+            </div>
+        </div>
+
+        <div class="service-item">
+            <div class="service-icon">🔄</div>
+            <div>
+                <h3>Đổi trả dễ dàng</h3>
+                <p>Hỗ trợ đổi trả khi có lỗi sản phẩm</p>
+            </div>
+        </div>
+
+        <div class="service-item">
+            <div class="service-icon">🤖</div>
+            <div>
+                <h3>Gợi ý</h3>
+                <p>Đề xuất sản phẩm theo hành vi người dùng</p>
+            </div>
+        </div>
+
+    </div>
+</div>
 <!-- PRODUCTS -->
 <div class="container">
-    <h2 class="section-title">SẢN PHẨM</h2>
+    <h2 class="section-title">SẢN PHẨM NỔI BẬT</h2>
     <div class="product-grid" id="products"></div>
 </div>
 

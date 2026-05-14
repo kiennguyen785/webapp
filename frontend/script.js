@@ -390,25 +390,30 @@ function searchProducts() {
 
         renderProducts(allProducts);
 
-        return;
+    } else {
+
+        const filtered = allProducts.filter(p => {
+
+            return (
+                String(p.name || "")
+                    .toLowerCase()
+                    .includes(keyword)
+
+                ||
+
+                String(p.category || "")
+                    .toLowerCase()
+                    .includes(keyword)
+            );
+        });
+
+        renderProducts(filtered);
     }
 
-    const filtered = allProducts.filter(p => {
-
-        return (
-            String(p.name || "")
-                .toLowerCase()
-                .includes(keyword)
-
-            ||
-
-            String(p.category || "")
-                .toLowerCase()
-                .includes(keyword)
-        );
+    document.getElementById("products")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
     });
-
-    renderProducts(filtered);
 }
 
 /* ================= EVENT ================= */
