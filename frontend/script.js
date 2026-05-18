@@ -350,12 +350,12 @@ function selectVariant(type, value, btn) {
 
     currentOrderVariantId = variant.variant_id;
 
-    if (variant.image_url) {
+    // if (variant.image_url) {
 
-        document.getElementById(
-            "productImage"
-        ).src = variant.image_url;
-    }
+    //     document.getElementById(
+    //         "productImage"
+    //     ).src = variant.image_url;
+    // }
 
     if (variant.price) {
 
@@ -414,7 +414,7 @@ function searchProducts() {
         behavior: "smooth",
         block: "start"
     });
-}
+}   
 
 /* ================= EVENT ================= */
 

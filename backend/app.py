@@ -60,7 +60,6 @@ def products_page():
         role=session.get("role")
     )
 
-
 @app.route("/product/<int:item_id>")
 def product_detail_page(item_id):
     return render_template(
@@ -110,7 +109,6 @@ def seller_page():
         username=session.get("username"),
         role=session.get("role")
     )
-
 
 @app.route("/admin")
 def admin_page():
@@ -888,7 +886,6 @@ def checkout_cart():
 
     try:
         items = []
-
         if item_id:
             if variant_id:
                 cursor.execute("""
@@ -1524,7 +1521,6 @@ def delete_seller_product(item_id):
         )
 
     conn.commit()
-
     conn.close()
 
     return jsonify({

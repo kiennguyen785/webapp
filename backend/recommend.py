@@ -1,5 +1,6 @@
 from model_loader import predict_next_items
-
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 
 RECENT_CATEGORY_WINDOW = 5
 
@@ -31,8 +32,8 @@ def get_user_sequence(cursor, user_id, limit=20):
 
     return sequence
 
-
 def get_recent_categories(cursor, sequence):
+
     if not sequence:
         return []
 
@@ -41,20 +42,21 @@ def get_recent_categories(cursor, sequence):
     placeholders = ",".join(["?"] * len(recent_items))
 
     cursor.execute(f"""
-        SELECT main_category
+        SELECT TOP 1
+            main_category,
+            COUNT(*) AS cnt
         FROM products_real
         WHERE item_id IN ({placeholders})
+        GROUP BY main_category
+        ORDER BY cnt DESC
     """, *recent_items)
 
-    rows = cursor.fetchall()
+    row = cursor.fetchone()
 
-    categories = []
+    if not row:
+        return []
 
-    for row in rows:
-        if row[0] and row[0] not in categories:
-            categories.append(row[0])
-
-    return categories
+    return [row[0]]
 
 
 def get_products_by_ids(
@@ -234,7 +236,7 @@ def get_recommend_products(cursor, user_id, top_k=20):
     lstm_products = get_products_by_ids(
         cursor,
         filtered_ids,
-        allowed_categories
+        # allowed_categories
     )
 
     data = merge_unique(

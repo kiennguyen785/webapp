@@ -10,7 +10,7 @@ MODEL_DIR = os.path.join(PROJECT_ROOT, "model")
 
 
 class SimpleLSTM(nn.Module):
-    def __init__(self, vocab_size, embed_dim=64, hidden_dim=128):
+    def __init__(self, vocab_size, embed_dim=128, hidden_dim=128):
         super().__init__()
         self.embedding = nn.Embedding(vocab_size + 2, embed_dim, padding_idx=0)
         self.lstm = nn.LSTM(embed_dim, hidden_dim, batch_first=True, num_layers=1)
