@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Lỗi</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+
+  <h1><%= message %></h1>
+
+  <% if (error && error.status) { %>
+    <h2>Lỗi: <%= error.status %></h2>
+  <% } %>
+
+  <% if (error && error.stack) { %>
+    <pre><%= error.stack %></pre>
+  <% } %>
+
+</body>
+</html>

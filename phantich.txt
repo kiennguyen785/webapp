@@ -1,0 +1,196 @@
+## 1. Xác định phạm vi hệ thống
+
+### Phần khách hàng
+* Trang chủ
+* Danh sách sản phẩm
+* Chi tiết sản phẩm
+* Phân loại sản phẩm theo hãng
+* Tìm kiếm sản phẩm
+* Giỏ hàng
+* Đặt hàng / thanh toán
+* Đăng ký / đăng nhập
+* Xem lịch sử đơn hàng
+* Cập nhật thông tin cá nhân
+* Trang giới thiệu
+* Trang liên hệ
+
+### Phần admin
+* Đăng nhập hệ thống
+* Quản lý sản phẩm: thêm, sửa, xóa
+* Quản lý danh mục
+* Quản lý thương hiệu
+* Quản lý tồn kho / nhập hàng
+* Quản lý đơn hàng
+* In hóa đơn
+* Quản lý tài khoản người dùng
+* Phân quyền quản trị / người bán hàng / khách hàng
+* Xem thống kê doanh thu, số lượng bán, tồn kho, sản phẩm bán chạy
+
+###Phần người bán hàng
+* Đăng nhập hệ thống
+* Quản lý sản phẩm: thêm, sửa, xóa
+* Quản lý danh mục
+* Quản lý thương hiệu
+* Quản lý tồn kho / nhập hàng
+* Quản lý đơn hàng
+* In hóa đơn
+* Quản lý tài khoản người dùng
+* Xem thống kê doanh thu, số lượng bán, tồn kho, sản phẩm bán chạy
+---
+
+## 2. Khảo sát yêu cầu
+
+### Về sản phẩm
+* Một điện thoại có những thông tin gì?
+  * tên
+  * hãng
+  * giá
+  * số lượng mua
+  * số lượng đã bán
+  * mô tả
+  * thông số kỹ thuật
+  * màu sắc
+  * dung lượng
+  * hình ảnh
+  * khuyến mãi hay không
+
+### Về đơn hàng
+
+* Khách mua hàng cần cần đăng nhập
+* Có cho mua nhiều sản phẩm trong một đơn 
+* Không có trạng thái đơn hàng
+### Về thanh toán
+* Thanh toán khi nhận hàng 
+### Về hóa đơn
+* Hóa đơn là bản PDF
+* Có mã hóa đơn
+* Có lưu ngày tạo hóa đơn 
+
+### Về phân quyền
+
+* Admin toàn quyền
+* Người bán hàng quản lý đơn hàng, in hóa đơn, nhập hàng, xoá tài khoản bản thân
+* Khách hàng được làm gì: xem sản phẩm, thêm vào giỏ hàng, mua hàng, xem lịch sử đơn
+---
+
+## 3. Phân tích hệ thống
+
+Ở bước này, bạn chuyển yêu cầu thành các chức năng rõ ràng.
+
+## 3.1. Phân tích actor
+
+Hệ thống có 3 actor chính:
+
+* Quản trị viên
+* Quản lý
+* Khách hàng
+
+## 3.2. Phân tích use case
+
+### Khách hàng
+
+* đăng ký
+* đăng nhập
+* xem sản phẩm
+* xem chi tiết sản phẩm
+* tìm kiếm
+* lọc theo danh mục
+* thêm vào giỏ hàng
+* thanh toán
+* xem đơn hàng
+
+### Người bán hàng
+
+* đăng nhập
+* xem danh sách đơn hàng
+* cập nhật trạng thái đơn
+* in hóa đơn
+* nhập sản phẩm vào kho
+* xem thống kê cơ bản
+
+### Quản trị viên
+
+* tất cả quyền của nhân viên
+* thêm / sửa / xóa sản phẩm
+* quản lý tài khoản
+* quản lý danh mục
+* quản lý khuyến mãi
+* xem báo cáo tổng hợp
+
+## 3.3. Phân tích chức năng bắt buộc
+
+Bạn nên gom thành module:
+
+### Module 1: Người dùng
+
+* đăng ký
+* đăng nhập
+* đăng xuất
+* đổi mật khẩu
+* phân quyền
+
+### Module 2: Sản phẩm
+
+* CRUD sản phẩm
+* phân loại sản phẩm
+* tìm kiếm
+* hiển thị chi tiết sản phẩm
+
+### Module 3: Giỏ hàng
+
+* thêm sản phẩm
+* cập nhật số lượng
+* xóa sản phẩm khỏi giỏ
+
+### Module 4: Đơn hàng
+
+* tạo đơn
+* xem đơn
+* cập nhật trạng thái đơn
+
+### Module 5: Hóa đơn
+
+* tạo hóa đơn
+* in hóa đơn
+* lưu lịch sử hóa đơn
+
+### Module 6: Kho / nhập hàng
+
+* nhập hàng
+* cập nhật tồn kho
+* theo dõi số lượng
+
+### Module 7: Thống kê
+
+* doanh thu theo ngày / tháng
+* đơn hàng theo trạng thái
+* sản phẩm bán chạy
+* sản phẩm tồn kho thấp
+
+---
+
+## 4. Thiết kế hệ thống
+
+-----
+
+### Kiến trúc nên dùng
+----
+
+## 5. Thiết kế CSDL
+-
+
+## 6. Thiết kế giao diện
+
+---
+
+## 7. Thiết kế phân quyền
+
+---
+---
+
+## 8. Thiết kế luồng nghiệp vụ
+----
+## 9. Thiết kế thống kê
+---
+## 10. Chia giai đoạn coding
+---

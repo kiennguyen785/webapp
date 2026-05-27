@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title><%= product.product_name %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="logo">Sports Shop</a>
+
+  <form action="/products" method="GET" class="search">
+    <input type="text" name="q" placeholder="Tìm sản phẩm thể thao...">
+    <button>Tìm</button>
+  </form>
+
+  <nav>
+    <a href="/">Trang chủ</a>
+    <a href="/products">Sản phẩm</a>
+    <a href="/cart">Giỏ hàng</a>
+
+    <% if (user) { %>
+      <div class="user-menu">
+        <span><%= user.full_name %></span>
+        <div class="dropdown">
+  <a href="/profile">Thông tin cá nhân</a>
+  <a href="/orders">Lịch sử đặt hàng</a>
+
+  <% if (user.role === 'admin') { %>
+    <a href="/admin/users">Quản lý tài khoản</a>
+    <a href="/admin/products">Quản lý sản phẩm</a>
+  <% } %>
+
+  <% if (user.role === 'seller') { %>
+    <a href="/seller/products">Quản lý sản phẩm</a>
+  <% } %>
+
+  <a href="/auth/logout">Đăng xuất</a>
+</div>      </div>
+    <% } else { %>
+      <a href="/auth/login">Đăng nhập</a>
+      <a href="/auth/register">Đăng ký</a>
+    <% } %>
+  </nav>
+</header>
+
+<main class="page-wrap">
+
+  <div class="product-detail">
+
+    <div class="product-top">
+
+      <div class="product-image-box">
+        <img src="<%= product.image_url %>" alt="<%= product.product_name %>">
+      </div>
+
+      <div class="product-info">
+
+        <h1><%= product.product_name %></h1>
+
+        <p><strong>Thương hiệu:</strong> <%= product.brand %></p>
+
+        <p><strong>Danh mục:</strong> <%= product.category %></p>
+
+        <h2><%= Number(product.price).toLocaleString('vi-VN') %> đ</h2>
+
+        <div class="product-description">
+          <div id="descText"><%= product.description %></div>
+        </div>
+
+        <form action="/cart/add/<%= product.id %>" method="POST">
+          <button>Thêm vào giỏ hàng</button>
+        </form>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const desc = document.getElementById('descText');
+
+    if (!desc) return;
+
+    const text = desc.innerText;
+
+    const lines = text
+        .split('\n')
+        .map(x => x.trim())
+        .filter(Boolean);
+
+    const sizeIndex = lines.findIndex(x =>
+        x.toUpperCase().includes('BẢNG SIZE')
+    );
+
+    if (sizeIndex === -1) return;
+
+    const beforeSize = lines.slice(0, sizeIndex);
+    const sizeLines = lines.slice(sizeIndex + 1);
+
+    let html = '';
+
+    beforeSize.forEach(line => {
+
+        if (line.startsWith('-')) {
+            html += `<li>${line.replace('-', '').trim()}</li>`;
+        } else {
+            html += `<p>${line}</p>`;
+        }
+
+    });
+
+    html += `
+        <h3>BẢNG SIZE</h3>
+
+        <table class="size-table">
+            <tr>
+                <th>Size</th>
+                <th>Chiều cao</th>
+                <th>Cân nặng</th>
+                <th>Eo</th>
+                <th>Dài quần</th>
+            </tr>
+    `;
+
+    sizeLines.forEach(line => {
+
+        const parts = line.split('|');
+
+        if (parts.length >= 5) {
+
+            html += `
+                <tr>
+                    <td>${parts[0].trim()}</td>
+                    <td>${parts[1].trim()}</td>
+                    <td>${parts[2].trim()}</td>
+                    <td>${parts[3].trim()}</td>
+                    <td>${parts[4].trim()}</td>
+                </tr>
+            `;
+        }
+
+    });
+
+    html += `</table>`;
+
+    desc.innerHTML = html;
+
+});
+</script>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <h3>Sports Shop</h3>
+      <p>Website bán đồ thể thao trực tuyến.</p>
+    </div>
+    <div>
+      <h4>Liên hệ</h4>
+      <p>Email: support@sportshop.vn</p>
+      <p>SĐT: 0123456789</p>
+    </div>
+    <div>
+      <h4>Danh mục</h4>
+      <p>Giày chạy bộ</p>
+      <p>Bóng đá</p>
+      <p>Cầu lông</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
